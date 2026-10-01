@@ -1,6 +1,6 @@
 // Service worker du prototype Club AMP : l'app s'ouvre même sans réseau une fois installée.
 // Changer VERSION à chaque mise en ligne pour forcer la mise à jour du cache.
-const VERSION = 'club-amp-20261001-1619';
+const VERSION = 'club-amp-20261001-1705';
 const COEUR = ['./', './index_10.html', './manifest.webmanifest', './img/icon-180.png', './img/icon-192.png', './img/icon-512.png', './data/terminaux3d.js'];
 
 self.addEventListener('install', e => {
@@ -13,8 +13,8 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  // Pages : réseau d'abord (pour recevoir les mises à jour), cache si hors connexion
-  if (req.mode === 'navigate') {
+  // Pages et vols en direct : réseau d'abord (pour recevoir les mises à jour), cache si hors connexion
+  if (req.mode === 'navigate' || url.pathname.endsWith('/data/vols.json')) {
     e.respondWith(fetch(req).then(r => { const c = r.clone(); caches.open(VERSION).then(k => k.put(req, c)); return r; })
       .catch(() => caches.match(req).then(r => r || caches.match('./index_10.html'))));
     return;

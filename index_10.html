@@ -143,7 +143,11 @@ nav.tabbar .on .ic-f{display:block}
 .fl .d b{display:block;font-size:17px;font-weight:700;color:var(--navy);text-transform:uppercase}
 .fl .d span{display:block;font-size:14.5px;color:var(--gris-statut);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st{flex-shrink:0;font-size:11.5px;font-weight:600;color:#fff;background:var(--gris-statut);border-radius:4px;padding:6px 12px}
-.st.olive{background:var(--olive)}
+.st.olive{background:var(--olive)}.st.orange{background:#D9822B}.st.rouge{background:#C0392B}
+.live-l{color:#1D8A4C;font-weight:700;font-size:12px}
+.suivi-d{color:#E0A030;font-size:16px;margin-left:-4px}
+.vol-det{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin:6px 0 16px;text-align:left}
+.vol-det span{display:block;font-size:11.5px;color:var(--gris-statut);text-transform:uppercase;letter-spacing:.3px}.vol-det b{font-size:14.5px;color:var(--navy)}
 .bio{display:inline-flex;align-items:center;gap:8px;background:var(--cyan);font-size:12.5px;padding:4px 10px;margin-top:10px}
 .search{position:absolute;z-index:6;left:50%;transform:translateX(-50%);bottom:calc(88px + var(--safe-bot));width:252px;height:44px;border-radius:4px;
   background:var(--violet);color:#fff;display:none;align-items:center;justify-content:center;gap:24px;white-space:nowrap;font-family:var(--cond);font-size:19px;font-weight:500;text-transform:uppercase}
@@ -599,10 +603,10 @@ button.p3-lbl{font-family:inherit;cursor:pointer}
   <!-- ================= VOLS SUIVIS ================= -->
   <section class="screen" id="suivis">
     <div class="header"><h1>Vols suivis</h1></div>
-    <div class="empty">
+    <div id="suivisListe"><div class="empty">
       <b>Suivez un premier vol pour<br>commencer !</b>
       <button class="btn-navy" data-go="vols" data-mode="dep">Suivre un vol</button>
-    </div>
+    </div></div>
   </section>
 
   <!-- ================= PLUS ================= -->
@@ -783,7 +787,77 @@ const d = new Date();
 document.getElementById('dateTxt').textContent = `${d.getDate()} ${MOIS[d.getMonth()]} ${d.getFullYear()}`;
 
 let mode = 'dep';
+/* ---------- Vols en direct : data/vols.json, mis à jour toutes les 10 min par GitHub Actions (outils/vols_mrs.py)
+   à partir des départs / arrivées du jour de marseille.aeroport.fr. Sans ce fichier, les vols de démonstration restent affichés. ---------- */
+const LIVE = {data: null, t: 0, suivis: []};
+try { LIVE.suivis = JSON.parse(localStorage.getItem('clubamp.suivis') || '[]'); } catch (e) {}
+const sauverSuivis = () => { try { localStorage.setItem('clubamp.suivis', JSON.stringify(LIVE.suivis)); } catch (e) {} };
+function chargerVolsLive(force) {
+  if (!force && LIVE.data && Date.now() - LIVE.t < 120000) return Promise.resolve(LIVE.data);
+  return fetch('data/vols.json', {cache: 'no-store'}).then(r => r.ok ? r.json() : Promise.reject(r))
+    .then(d => { LIVE.data = d; LIVE.t = Date.now(); majBilletLive(); return d; }).catch(() => LIVE.data);
+}
+const volsLive = sens => LIVE.data ? LIVE.data[sens] || [] : [];
+const volLiveDe = id => volsLive('dep').find(q => q.id === id) || volsLive('arr').find(q => q.id === id);
+const dateVol = q => new Date(`${q.date}T${q.h}:00`);
+// Vols à afficher : à partir d'1 h avant maintenant
+const volsAVenir = sens => { const t0 = Date.now() - 3600e3; return volsLive(sens).filter(q => dateVol(q).getTime() >= t0); };
+const clsStatut = q => /annul/i.test(q.statut) ? 'rouge' : /retard/i.test(q.statut) ? 'orange' : /embarq|derni|porte/i.test(q.statut + ' ' + (q.emb || '')) && !/clos/i.test(q.emb || '') && !/d[ée]coll/i.test(q.statut) ? 'olive' : '';
+const ligneVolLive = (q, sens) => `<button class="fl" data-vollive="${q.id}" style="width:100%;text-align:left">
+      <div class="t"><b>${q.h}</b><span>${q.term}</span></div>
+      <div class="d"><b>${q.ville}</b><span>${q.num} - ${q.cie}${sens === 'dep' && q.porte ? ` · porte ${q.porte}` : ''}${sens === 'arr' && q.tapis ? ` · tapis ${q.tapis}` : ''}</span></div>
+      ${q.statut ? `<span class="st ${clsStatut(q)}">${q.statut}</span>` : ''}${LIVE.suivis.includes(q.id) ? '<span class="suivi-d">★</span>' : ''}
+    </button>`;
+function renderVolsLive() {
+  const sens = mode === 'arr' ? 'arr' : 'dep', vols = volsAVenir(sens).slice(0, 80);
+  document.getElementById('dateTxt').innerHTML = `${fmtDateCourt(new Date())} · <span class="live-l">● En direct</span> · mis à jour à ${LIVE.data.maj_site || '—'}`;
+  document.getElementById('flights').innerHTML = vols.length ? vols.map(q => ligneVolLive(q, sens)).join('') : '<p class="fine">Aucun vol pour le moment.</p>';
+}
+function openVolLive(id) {
+  const q = volLiveDe(id); if (!q) return;
+  const dep = volsLive('dep').includes(q), suivi = LIVE.suivis.includes(id);
+  const lignes = [['Vol', `${q.num} · ${q.cie}`], [dep ? 'Destination' : 'Provenance', `${q.ville}${q.code ? ` (${q.code})` : ''}`], ['Heure prévue', `${q.h} · ${q.date.split('-').reverse().slice(0, 2).join('/')}`],
+    ['Terminal', q.term], ...(dep ? [['Porte', q.porte || 'pas encore attribuée'], ['Enregistrement', q.banques ? `comptoirs ${q.banques}` : '—'], ['Embarquement', q.emb || '—']] : [['Tapis bagages', q.tapis || '—']]),
+    ['Statut', q.statut || 'à l’heure']];
+  openSheet(`<h3>${q.h} · ${q.ville}</h3><div class="sub">${dep ? 'Départ' : 'Arrivée'} · <span class="live-l">● En direct</span> · source : marseille.aeroport.fr</div>
+    <div class="vol-det">${lignes.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>
+    <button class="btn-violet" data-suivre="${id}">${suivi ? '★ Vol suivi · ne plus suivre' : '☆ Suivre ce vol'}</button>
+    ${dep ? `<button class="btn-line" data-monvol="${id}" style="margin-top:8px">C’est mon vol · l’ajouter comme billet</button>` : ''}`);
+}
+function basculerSuivi(id) {
+  const i = LIVE.suivis.indexOf(id); if (i >= 0) LIVE.suivis.splice(i, 1); else LIVE.suivis.push(id);
+  sauverSuivis(); toast(i >= 0 ? 'Vous ne suivez plus ce vol' : 'Vol suivi · retrouvez-le dans « Vols suivis »');
+  openVolLive(id); renderVols(); renderSuivis();
+}
+function renderSuivis() {
+  const el = document.getElementById('suivisListe'); if (!el) return;
+  const vols = LIVE.suivis.map(volLiveDe).filter(Boolean);
+  el.innerHTML = vols.length ? `<div class="flights" style="padding-bottom:20px">${vols.map(q => ligneVolLive(q, volsLive('dep').includes(q) ? 'dep' : 'arr')).join('')}</div>`
+    : `<div class="empty"><b>Suivez un premier vol pour<br>commencer !</b><button class="btn-navy" data-go="vols" data-mode="dep">Suivre un vol</button></div>`;
+}
+// « C'est mon vol » : le vol en direct devient le billet (porte officielle si déjà attribuée)
+function monVolLive(id) {
+  const q = volLiveDe(id); if (!q) return;
+  chargerDonneesT3().then(() => {
+    const g = q.porte && portesPlan().find(x => x.nom.toUpperCase() === `PORTE ${q.porte}`.toUpperCase());
+    importerBillet({i: VOLS_DEMO.findIndex(v => v.num.replace(/\s/g, '') === q.num.replace(/\s/g, '')), num: q.num, h: q.h, ville: q.ville, code: q.code,
+      porte: g ? g.nom : undefined, term: q.term, schengen: SCHENGEN.test(` ${q.code} ${q.ville} `)});
+  }).catch(() => {});
+}
+// Billet ↔ vol en direct (même numéro, aujourd'hui) : statut, embarquement et porte officielle à jour
+function majBilletLive() {
+  if (!club.billet || !LIVE.data || !T3.data) return;
+  const v = vol(), n = (club.billet.num || v.num || '').replace(/\s/g, '');
+  const q = volsLive('dep').filter(x => x.num.replace(/\s/g, '') === n).sort((a, b) => Math.abs(dateVol(a) - Date.now()) - Math.abs(dateVol(b) - Date.now()))[0];
+  if (!q) { v.live = null; return; }
+  v.live = q; v.h = q.h; v.term = q.term || v.term;
+  const g = q.porte && portesPlan().find(x => x.nom.toUpperCase() === `PORTE ${q.porte}`.toUpperCase());
+  if (g && g.nom !== v.porte) { v.porte = g.nom; v.term = niveauDuPoi(g.p).term; if (T3.route && T3.routeDef && T3.routeDef.porte) calculerRouteT3(T3.routeDef); }
+}
+setInterval(() => chargerVolsLive(true).then(() => { renderVols(); renderSuivis(); renderBillet(); }), 120000);
 function renderVols() {
+  if (LIVE.data) return renderVolsLive();
+  if (!LIVE.essai) { LIVE.essai = true; chargerVolsLive().then(d => { if (d) { renderVols(); renderSuivis(); renderBillet(); } }); }
   document.querySelectorAll('.tabs2 button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
   document.getElementById('flights').innerHTML = VOLS[mode].map(([h, t, ville, cie, st, bio]) => `
     ${bio ? `<div class="bio">${svg(P.face, {sw: 1.4, size: 14})}Parcours Biométrique</div>` : ''}
@@ -811,6 +885,7 @@ function go(id) {
   document.getElementById('stickyLogo').classList.remove('show');
   document.getElementById(id).scrollTop = 0;
   if (id === 'vols') renderVols();
+  if (id === 'suivis') { renderSuivis(); chargerVolsLive().then(renderSuivis); }
   if (id === 'reserver' && typeof renderReserver === 'function') renderReserver();
   history.replaceState(null, '', '#' + id);
 }
@@ -1058,11 +1133,16 @@ function openPanier() {
 /* ---------- Billet importé : pas de vol tant qu'aucun billet n'est importé ; la porte s'affiche dès l'import ----------
    Le billet (photo, capture ou PDF) est lu sur le téléphone : code-barres IATA ou QR code, sinon le texte imprimé
    (PDF : texte du document ; image : reconnaissance de caractères). La porte lue est vérifiée sur le plan officiel. */
-const porteConnue = () => club.billet ? vol().porte : null;
+const porteConnue = () => club.billet && vol().porte ? vol().porte : null;
 const heureNow = () => { const d = new Date(); return club.billet ? `${pad2(d.getHours())}:${pad2(d.getMinutes())}` : HEURE_DEMO; };
 const fmtDuree = m => m >= 60 ? `${Math.floor(m / 60)} h ${pad2(m % 60)}` : `${m} min`;
 // Embarquement : ouverture à l'heure prévue (retard compris), fin 20 min avant le départ
 function etatEmbarquement(v) {
+  // Statut officiel de l'aéroport en priorité (vol en direct), sinon estimation à partir des horaires
+  const off = v.live && (v.live.emb || '');
+  if (/cours/i.test(off)) return {txt: 'Embarquement en cours', sub: 'annoncé par l’aéroport', cls: 'ouv'};
+  if (/clos|termin/i.test(off)) return {txt: 'Embarquement clos', sub: 'annoncé par l’aéroport', cls: 'fin'};
+  if (v.live && /d[ée]coll/i.test(v.live.statut || '')) return {txt: v.live.statut, sub: '', cls: 'fin'};
   const now = hhmmMin(heureNow()), ecart = x => ((x - now + 1440 + 720) % 1440) - 720;
   const a = ecart(hhmmMin(embarqEff(v))), b = ecart(hhmmMin(addMin(v.h, v.retard - 20)));
   if (a > 0) return {txt: `Embarquement dans ${fmtDuree(a)}`, sub: `ouverture à ${embarqEff(v)}`, cls: 'att'};
@@ -1080,9 +1160,10 @@ function renderBillet() {
   }
   const e = etatEmbarquement(v);
   el.innerHTML = `<div class="billet"><div class="bt"><b>${v.h} · ${v.ville}</b><span>${b.num}${b.siege ? ` · siège ${b.siege}` : ''}</span></div>
-    <div class="gate-row"><div class="gate"><b>${v.porte.replace(/^Porte /, '')}</b><span><b style="font:inherit;font-weight:700;color:var(--navy)">${v.porte}</b> · ${v.term === 'T1' ? 'Terminal 1' : 'Terminal 2'}<br>${e.txt}</span></div>
+    <div class="gate-row"><div class="gate"><b>${v.porte ? v.porte.replace(/^Porte /, '') : '—'}</b><span><b style="font:inherit;font-weight:700;color:var(--navy)">${v.porte || 'Porte pas encore attribuée'}</b> · ${v.term === 'T1' ? 'Terminal 1' : 'Terminal 2'}<br>${e.txt}</span></div>
       <button class="go-gate" id="billetPlan">${svg(P.plane, {color: '#fff', sw: 1.6, size: 22})}Aller à ma porte</button></div>
     ${v.retard > 0 ? `<span class="st olive" style="display:inline-block;margin-top:8px">Retardé · départ ${addMin(v.h, v.retard)}</span>` : ''}
+    ${v.live ? `<div class="live-l">● En direct · ${v.live.statut || 'à l’heure'}${v.live.emb ? ` · ${v.live.emb}` : ''}${v.live.banques ? ` · enregistrement ${v.live.banques}` : ''}</div>` : ''}
     <button class="fswitch" id="billetSuppr" style="display:block">Retirer ce billet</button></div>`;
 }
 function openImportBillet() {
@@ -1180,7 +1261,7 @@ function importerBillet(info) {
   if (i < 0) { // vol absent de la démo : créé à partir du billet
     const ref = VOLS_DEMO[0], h = info.h || addMin(heureNow(), 120);
     VOLS_DEMO.push(Object.assign({}, ref, {h, ville: info.ville || info.code || 'DESTINATION', num: info.num || 'VOL', code: info.code || '',
-      term: termPorte || 'T1', porte: info.porte || 'Porte 14', embarq: info.emb || addMin(h, -30), retard: 0,
+      term: termPorte || info.term || 'T1', porte: info.porte || null, embarq: info.emb || addMin(h, -30), retard: 0,
       regime: info.schengen ? 'schengen' : 'international', paf: info.schengen ? null : 8}));
     i = VOLS_DEMO.length - 1;
   } else {
@@ -1190,8 +1271,9 @@ function importerBillet(info) {
   }
   const v = VOLS_DEMO[i];
   club.vol = i; club.billet = {num: info.num || v.num, siege: info.siege, nom: info.nom};
+  majBilletLive();
   closeSheet(); renderAll();
-  toast(`Billet importé · ${v.ville} ${v.h} · ${v.porte}${info.porteInconnue ? ` (porte ${info.porteInconnue} absente du plan)` : ''}`);
+  toast(`Billet importé · ${v.ville} ${v.h} · ${v.porte || 'porte pas encore attribuée'}${info.porteInconnue ? ` (porte ${info.porteInconnue} absente du plan)` : ''}`);
 }
 function annoncerPorte() {}
 function voirPorteSurPlan() {
@@ -1264,13 +1346,13 @@ function renderClub() {
     <div class="sec-t">Mon prochain vol</div>
     ${club.billet ? `    <div class="sec-t">Mon prochain vol <small>Suivi dans « Vols suivis »</small></div>
     <div class="fcard">
-      <div class="fl-t"><b>${vol().h} · ${vol().ville}</b><span>${vol().term} · ${vol().porte}</span></div>
+      <div class="fl-t"><b>${vol().h} · ${vol().ville}</b><span>${vol().term} · ${vol().porte || 'porte à venir'}</span></div>
       ${vol().retard > 0 ? `<span class="st olive" style="display:inline-block;margin-top:8px">Retardé · nouvel horaire ${embarqEff(vol())}</span>` : ''}
       <div class="waits"><div>Sûreté<b>${vol().surete} min</b></div><div>Frontières<b>${vol().paf == null ? '—' : vol().paf + ' min'}</b></div><div>Marche<b>${vol().marche} min</b></div></div>
       <div class="lnote" style="margin-top:2px;color:var(--navy)">Embarquement dans <b>${embEff(vol())} min</b></div>
       <div class="libre">Vous avez le temps : <b>${libreEff(vol())} min</b> à profiter du terminal</div>
       <button class="go" id="billetPlan2">${svg(P.plane, {color: NAVY, sw: 1.5, size: 20})}Aller à ma porte</button>
-      <button class="go" id="offresBtn">${svg(P.bag, {color: NAVY, sw: 1.5, size: 20})}Voir les offres près de la ${vol().porte.replace(/^Porte/, 'porte')}</button>
+      <button class="go" id="offresBtn">${svg(P.bag, {color: NAVY, sw: 1.5, size: 20})}Voir les offres près de la ${(vol().porte || 'porte').replace(/^Porte/, 'porte')}</button>
     </div>
     ${vol().retard >= SEUIL_RETARD_MIN ? retardSuggestion() : ''}
     <div class="sensor">${svg(P.sensor, {color: '#6C7580', sw: 1.4, size: 16})}Attentes mesurées par des capteurs de comptage anonymes</div>
@@ -1797,7 +1879,7 @@ function renderEmbPlan() {
   const el = document.getElementById('paEmb'); if (!el) return;
   if (!club.billet) { el.hidden = true; return; }
   const v = vol(), e = etatEmbarquement(v);
-  el.hidden = false; el.className = 'pa-emb ' + e.cls; el.innerHTML = `🛫 ${v.porte} · ${e.txt}`;
+  el.hidden = false; el.className = 'pa-emb ' + e.cls; el.innerHTML = `🛫 ${v.porte || 'Porte à venir'} · ${e.txt}`;
 }
 setInterval(() => { if (document.getElementById('planAmp').classList.contains('on')) renderEmbPlan(); renderBillet(); }, 30000);
 const closePlanAeroport = () => { if (document.getElementById('planAmp').classList.contains('plein')) basculerPleinEcran(); document.getElementById('planAmp').classList.remove('on'); arreterT3(); };
@@ -2159,7 +2241,7 @@ function niveauPourRouteT3() {
   const ys = new Set(T3.route.pts.map(q => Math.round(q.y))); return ys.size > 1 ? 0 : Math.round((T3.route.pts[0].y - .9) / T3_NIV) + 1;
 }
 function routeVersPorteT3() {
-  if (!porteConnue()) { toast('Importez votre billet pour connaître votre porte'); return openImportBillet(); }
+  if (!porteConnue()) { if (club.billet) return toast('Votre porte n’est pas encore attribuée : elle s’affichera ici dès son annonce'); toast('Importez votre billet pour connaître votre porte'); return openImportBillet(); }
   lancerRouteT3({porte: true});
 }
 // Calcule l'itinéraire et l'affiche (vue de tous les niveaux s'il change d'étage)
@@ -2501,7 +2583,7 @@ function piedT3() {
   }
   f.innerHTML = `${guideT3()}<p>${r ? `<b>Itinéraire vers ${/^Porte/.test(r.vers) ? 'la ' : ''}${r.vers}</b> <span>${r.via ? `· via ${r.via.nom} ` : ''}· ≈ ${r.m} m · ${Math.max(1, Math.round(r.m / 75))} min à pied depuis ${r.depuis}</span>`
       : !club.billet ? `<b>${nomT}</b> <span>· importez votre billet pour voir votre porte · touchez le plan ou une boutique</span>`
-      : v.term === PA.term ? `<b>Votre vol ${v.ville}</b> <span>· ${v.porte}, ${v.term} · touchez le plan ou une boutique</span>` : `<b>${nomT}</b> <span>· votre vol part du ${v.term}</span>`}</p>
+      : v.term === PA.term ? `<b>Votre vol ${v.ville}</b> <span>· ${v.porte || 'porte à venir'}, ${v.term} · touchez le plan ou une boutique</span>` : `<b>${nomT}</b> <span>· votre vol part du ${v.term}</span>`}</p>
     <div class="t3-btns">${r ? '<button class="btn-line" id="t3RouteOff">Masquer l’itinéraire</button>' + (T3.routeDef && T3.routeDef.versParking ? '<button class="btn-violet" id="t3VoirPlace" style="margin:0">Voir ma place</button>' : '')
       : club.billet ? '<button class="btn-violet" id="t3Route" style="margin:0">Itinéraire vers ma porte</button>' : '<button class="btn-violet" id="billetImport" style="margin:0">Importer mon billet</button>'}</div>
     ${!r && club.parking ? `<div class="t3-btns"><button class="btn-line" id="t3PkPorte">🅿️ Du parking ${club.billet ? 'à ma porte' : 'au terminal'}</button><button class="btn-line" id="t3ArrPk">🛬 Des arrivées à ma voiture</button></div>` : ''}`;
@@ -2783,7 +2865,7 @@ function retardSuggestion() {
 }
 
 function openOffres() {
-  openSheet(`<h3>Près de la ${vol().porte.replace(/^Porte/, 'porte')}</h3><div class="sub">Vous avez ${libreEff(vol())} min · offres réservées aux membres</div>
+  openSheet(`<h3>Près de la ${(vol().porte || 'porte').replace(/^Porte/, 'porte')}</h3><div class="sub">Vous avez ${libreEff(vol())} min · offres réservées aux membres</div>
     ${vol().offres.map(([ic, t, d, m]) => `<div class="offer"><span class="dot">${svg(P[ic], {color: NAVY, sw: 1.4, size: 22})}</span>
       <div class="tx"><b>${t}</b><span>${d}</span></div><span class="dist">${m} à pied</span></div>`).join('')}
     <p class="fine">Offres identiques pour tous les membres du même niveau${club.consent.offres ? ', complétées par vos offres personnalisées' : ''}.</p>`);
@@ -2913,6 +2995,9 @@ document.getElementById('app').addEventListener('click', e => {
   else if (t.id === 't3Route') routeVersPorteT3();
   else if (t.id === 't3RouteOff') { effacerRouteT3(); T3.routeDef = null; labelsT3(); piedT3(); }
   else if (t.dataset.lieu) choisirLieu(t.dataset.lieu);
+  else if (t.dataset.vollive) openVolLive(t.dataset.vollive);
+  else if (t.dataset.suivre) basculerSuivi(t.dataset.suivre);
+  else if (t.dataset.monvol) monVolLive(t.dataset.monvol);
   else if (t.id === 'geoOui') demanderPosition();
   else if (t.id === 'geoNon') closeSheet();
   else if (t.dataset.geosim) simulerPosition(+t.dataset.geosim);
