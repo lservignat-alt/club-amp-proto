@@ -383,10 +383,16 @@ nav.tabbar .on .ic-f{display:block}
 .guide b{display:block;font-size:14.5px;color:var(--navy)}.guide span{font-size:12px;color:var(--gris-statut)}
 .pa-mode{flex-shrink:0;height:40px;padding:0 12px;border-radius:8px;background:var(--navy);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px}
 #t3Canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-#t3Canvas[hidden],.t3-walk[hidden],#t3Foot[hidden]{display:none}
-.t3-walk{position:absolute;right:12px;bottom:14px;display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px);gap:6px}
-.t3-walk #t3Av{grid-column:2}.t3-walk [data-t3tour="1"]{grid-column:1;grid-row:2}.t3-walk [data-t3pas="-1"]{grid-column:2;grid-row:2}.t3-walk [data-t3tour="-1"]{grid-column:3;grid-row:2}
-.t3-walk button{width:48px;height:48px;border-radius:50%;background:#fff;box-shadow:0 2px 10px rgba(25,38,64,.25);display:flex;align-items:center;justify-content:center;touch-action:none;user-select:none;-webkit-user-select:none}
+#t3Canvas[hidden],#t3Foot[hidden]{display:none}
+.pa-cats{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px}.pa-cats::-webkit-scrollbar{display:none}
+.pa-cats button{flex-shrink:0;height:32px;padding:0 12px;border-radius:16px;border:1.5px solid #d5d6db;background:#fff;font-size:12.5px;font-weight:600;color:var(--navy);white-space:nowrap}
+.pa-cats button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.pa-res-t{margin:0;padding:8px 12px 4px;font-size:11.5px;font-weight:700;color:var(--gris-statut)}
+.pa-res button .ic{flex-shrink:0;width:22px}.pa-res button b{flex:1;font-weight:600;text-align:left}
+button.p3-lbl{font-family:inherit;cursor:pointer}
+.p3-lbl.res{background:#fff;color:var(--violet-2);border:1.5px solid var(--violet-2);font-size:12px;font-weight:700;padding:4px 8px;border-radius:14px;box-shadow:0 2px 8px rgba(96,50,236,.25)}
+.p3-lbl.mini{background:rgba(255,255,255,.85);padding:2px 6px;border-radius:10px;color:var(--navy)}
+.t3-info{font-size:12px;color:var(--gris-statut);margin:4px 0 0;line-height:1.45}
 .t3-btns{display:flex;gap:8px;margin-top:10px}.t3-btns button{flex:1;height:42px;font-size:13.5px}
 #t3Foot p{font-size:13px;color:var(--navy);margin:0}#t3Foot p span{color:var(--gris-statut)}
 /* ============ PLAN 3D DES PARKINGS ============ */
@@ -399,6 +405,21 @@ nav.tabbar .on .ic-f{display:block}
 .p3-tt span{display:block;font-size:12px;color:var(--gris-statut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .p3-sitebtn{flex-shrink:0;height:34px;padding:0 12px;border-radius:6px;border:1.5px solid var(--navy);font-size:12.5px;font-weight:700;color:var(--navy)}
 .p3-stage{position:relative;flex:1;min-height:0;overflow:hidden;touch-action:none}
+/* Plan en plein écran : seul le plan reste, avec un bouton pour réduire et les niveaux en surimpression */
+.pa-plein{position:absolute;left:10px;top:10px;z-index:4;width:40px;height:40px;border-radius:8px;background:#fff;box-shadow:0 2px 8px rgba(25,38,64,.25);display:flex;align-items:center;justify-content:center}
+.pa-flt{display:none;position:absolute;left:10px;top:calc(var(--safe-top) + 58px);z-index:4;flex-direction:column;gap:6px}
+.pa-flt button{min-width:44px;height:36px;padding:0 10px;border-radius:8px;background:#fff;box-shadow:0 2px 8px rgba(25,38,64,.2);font-weight:700;font-size:13px;color:var(--navy)}
+.pa-flt button.on{background:var(--navy);color:#fff}
+.planamp.plein .p3-head,.planamp.plein .pa-row,.planamp.plein .pa-nivs,.planamp.plein .p3-hint{display:none}
+.planamp.plein .pa-plein{top:calc(var(--safe-top) + 10px)}
+.planamp.plein .pa-flt{display:flex}
+.pa-flt hr{border:0;height:4px;margin:0}
+.pa-flt button.geo.on{background:#2F7BF6;color:#fff}
+/* En plein écran : recherche et menu flottants en haut, fiche du lieu / itinéraire flottante en bas */
+.planamp.plein .pa-sel{position:absolute;z-index:5;top:calc(var(--safe-top) + 10px);left:62px;right:10px;padding:0;background:none;border:0}
+.planamp.plein .pa-search input{box-shadow:0 2px 10px rgba(25,38,64,.22);border-color:transparent}
+.planamp.plein .pa-cats{margin:0;padding:0}.planamp.plein .pa-cats button{box-shadow:0 2px 6px rgba(25,38,64,.18);border-color:transparent}
+.planamp.plein #t3Foot:not([hidden]){position:absolute;z-index:5;left:10px;right:10px;bottom:calc(10px + var(--safe-bot));border-radius:14px;box-shadow:0 6px 24px rgba(25,38,64,.25);padding:12px 14px}
 .p3-stage canvas{display:block;width:100%;height:100%}
 .p3-labels{position:absolute;inset:0;pointer-events:none}
 .p3-lbl{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform}
@@ -602,19 +623,15 @@ nav.tabbar .on .ic-f{display:block}
       <div class="p3-tt"><b>Plan de l’aéroport</b><span>Plan officiel · plans.marseille.aeroport.fr</span></div>
       <button id="paParkings" class="p3-sitebtn">Parkings 3D</button>
     </div>
-    <div class="pa-sel"><div class="pa-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#6C7580" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="paQ" placeholder="Rechercher une boutique, un restaurant, une porte…" autocomplete="off"><div class="pa-res" id="paRes" hidden></div></div><div class="pa-row"><button class="pa-geo" id="paGeo" aria-label="Me localiser"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2F7BF6" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg></button><div class="pa-terms" id="paTerms"></div><button class="pa-mode" id="paMode"></button></div><div class="pa-nivs" id="paNivs"></div></div>
+    <div class="pa-sel"><div class="pa-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#6C7580" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="paQ" placeholder="Rechercher une boutique, un restaurant, une porte…" autocomplete="off"><div class="pa-res" id="paRes" hidden></div></div><div class="pa-cats" id="paCats"></div><div class="pa-row"><button class="pa-geo" id="paGeo" aria-label="Me localiser"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2F7BF6" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg></button><div class="pa-terms" id="paTerms"></div><button class="pa-mode" id="paMode"></button></div><div class="pa-nivs" id="paNivs"></div></div>
     <div class="p3-stage" id="paStage">
+      <button class="pa-plein" id="paPlein" aria-label="Plan en plein écran"></button>
+      <div class="pa-flt" id="paFlt"></div>
       <iframe id="paFrame" class="p3-official" title="Plan officiel de l’aéroport Marseille Provence" allow="geolocation"></iframe>
       <canvas id="t3Canvas" hidden></canvas>
       <div class="p3-labels" id="t3Labels" hidden></div>
       <div class="p3-load" id="t3Load" hidden></div>
-      <div class="p3-hint" id="t3Hint" hidden></div>
-      <div class="t3-walk" id="t3Walk" hidden>
-        <button id="t3Av" data-t3pas="1" aria-label="Avancer"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#192640" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
-        <button data-t3tour="1" aria-label="Tourner à gauche"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#192640" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-        <button data-t3pas="-1" aria-label="Reculer"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#192640" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></button>
-        <button data-t3tour="-1" aria-label="Tourner à droite"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#192640" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
-      </div>
+      <div class="p3-hint" id="t3Hint" hidden>Un doigt pour déplacer · deux doigts pour tourner · pincez pour zoomer</div>
     </div>
     <div class="p3-foot" id="t3Foot" hidden></div>
   </div>
@@ -630,7 +647,7 @@ nav.tabbar .on .ic-f{display:block}
       <div class="p3-labels" id="p3Labels"></div>
       <div class="p3-levels" id="p3Levels"></div>
       <div class="p3-load" id="p3Load">Chargement du plan 3D…</div>
-      <div class="p3-hint">Glissez pour pivoter · pincez pour zoomer</div>
+      <div class="p3-hint">Un doigt pour déplacer · deux doigts pour tourner · pincez pour zoomer</div>
     </div>
     <div class="p3-legend" id="p3Legend">
       <span><i style="background:#8FD6A8"></i>Libre</span><span><i style="background:#D3D6DD"></i>Occupée</span>
@@ -1064,7 +1081,7 @@ function voirPorteSurPlan() {
   const v = vol(), t = TERMINAUX.find(x => x.id === v.term);
   PA.term = v.term; PA.ord = ordDeparts(t); PA.vue = '3d'; T3.ouvrirSur = 'porte';
   openPlanAeroport();
-  if (T3.renderer) { if (T3.balade) quitterBaladeT3(); T3.ouvrirSur = null; routeVersPorteT3(); }
+  if (T3.renderer) { T3.ouvrirSur = null; routeVersPorteT3(); }
 }
 function renderAccueilClub() {
   const el = document.getElementById('accueilClub'); if (!el) return;
@@ -1515,6 +1532,13 @@ function closePlan3D() {
   document.getElementById('plan3d').classList.remove('on');
   cancelAnimationFrame(V.raf); V.raf = null;
 }
+// Gestes « carte » (comme Google Maps) : un doigt déplace la carte, deux doigts la font tourner / pivoter,
+// écarter ou pincer zoome. À la souris : clic gauche pour déplacer, clic droit pour tourner, molette pour zoomer.
+function gestesCarte(ctl) {
+  ctl.touches = {ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE};
+  ctl.mouseButtons = {LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE};
+  ctl.panSpeed = 1.1; ctl.rotateSpeed = .7; ctl.zoomSpeed = 1.1;
+}
 function initThree() {
   if (V.renderer) return;
   const stage = document.getElementById('p3Stage');
@@ -1525,6 +1549,7 @@ function initThree() {
   V.cam = new THREE.PerspectiveCamera(42, 1, .5, 2000);
   V.ctl = new THREE.OrbitControls(V.cam, r.domElement);
   Object.assign(V.ctl, {enableDamping: true, dampingFactor: .09, maxPolarAngle: 1.3, minDistance: 10, maxDistance: 420, screenSpacePanning: false});
+  gestesCarte(V.ctl);
   const hemi = new THREE.HemisphereLight(0xffffff, 0xb4bccb, .78);
   const sun = new THREE.DirectionalLight(0xffffff, .62);
   sun.position.set(-70, 160, 90); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
@@ -1591,17 +1616,26 @@ const TERMINAUX = [
 ];
 const PA = {term: null, ord: null, vue: 'plan'};
 const urlPlanTerminal = (t, ord) => `${PLAN_OFFICIEL}?vid=mrsfr&lang=fr&s=${encodeURIComponent(btoa(JSON.stringify({mapRenderer: {vp: {lat: t.lat, lng: t.lng, zoom: t.zoom, bearing: 0, pitch: 0}, ord}})))}`;
-function renderPlanAeroport() {
-  const t = TERMINAUX.find(x => x.id === PA.term);
+function renderPlanAeroport(cadrer = true) {
+  const t = TERMINAUX.find(x => x.id === PA.term), en3d = PA.vue === '3d';
+  if (!en3d && PA.ord === 0) PA.ord = ordDeparts(t); // la vue de tous les niveaux n'existe qu'en 3D
   document.getElementById('paTerms').innerHTML = TERMINAUX.map(x => `<button data-paterm="${x.id}" class="${x.id === PA.term ? 'on' : ''}">${x.nom}</button>`).join('');
-  document.getElementById('paNivs').innerHTML = t.niveaux.map(([o, l]) => `<button data-paord="${o}" class="${o === PA.ord ? 'on' : ''}">Niveau ${o}<small>${l}</small></button>`).join('');
-  const en3d = PA.vue === '3d';
+  document.getElementById('paNivs').innerHTML = t.niveaux.map(([o, l]) => `<button data-paord="${o}" class="${o === PA.ord ? 'on' : ''}">Niveau ${o}<small>${l}</small></button>`).join('')
+    + (en3d ? `<button data-paord="0" class="${PA.ord === 0 ? 'on' : ''}">${t.niveaux.length} niveaux<small>Vue d’ensemble</small></button>` : '');
+  renderCats();
+  const plein = document.getElementById('planAmp').classList.contains('plein');
+  document.getElementById('paPlein').innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#192640" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${plein ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5'}"/></svg>`;
+  document.getElementById('paPlein').setAttribute('aria-label', plein ? 'Réduire le plan' : 'Plan en plein écran');
+  document.getElementById('paFlt').innerHTML = TERMINAUX.map(x => `<button data-paterm="${x.id}" class="${x.id === PA.term ? 'on' : ''}">${x.id}</button>`).join('')
+    + `<hr><button class="geo ${GEO.etat === 'ok' ? 'on' : ''}" id="paGeo2" aria-label="Me localiser">⊙</button><hr>`
+    + t.niveaux.map(([o]) => `<button data-paord="${o}" class="${o === PA.ord ? 'on' : ''}">Niv. ${o}</button>`).join('')
+    + (en3d ? `<button data-paord="0" class="${PA.ord === 0 ? 'on' : ''}">Tous</button>` : '');
   document.getElementById('paGeo').classList.toggle('on', GEO.etat === 'ok');
   document.getElementById('paMode').innerHTML = en3d ? 'Plan 2D' : `${svg(P.cube, {color: '#fff', sw: 1.6, size: 16})}3D`;
   for (const id of ['t3Canvas', 't3Labels', 't3Hint']) document.getElementById(id).hidden = !en3d;
   document.getElementById('paFrame').hidden = en3d;
-  if (en3d) return afficherT3();
-  document.getElementById('t3Load').hidden = document.getElementById('t3Foot').hidden = document.getElementById('t3Walk').hidden = true;
+  if (en3d) return afficherT3(cadrer);
+  document.getElementById('t3Load').hidden = document.getElementById('t3Foot').hidden = true;
   arreterT3();
   const f = document.getElementById('paFrame'), url = urlPlanTerminal(t, PA.ord);
   if (f.dataset.url !== url) { f.dataset.url = url; f.src = url; }
@@ -1619,129 +1653,153 @@ function openPlanAeroport() {
 }
 function choisirTerminal(id) {
   const t = TERMINAUX.find(x => x.id === id);
-  PA.term = id; if (!t.niveaux.some(([o]) => o === PA.ord)) PA.ord = ordDeparts(t);
+  PA.term = id; if (PA.ord !== 0 && !t.niveaux.some(([o]) => o === PA.ord)) PA.ord = ordDeparts(t);
   renderPlanAeroport();
 }
-const closePlanAeroport = () => { document.getElementById('planAmp').classList.remove('on'); arreterT3(); };
+const closePlanAeroport = () => { if (document.getElementById('planAmp').classList.contains('plein')) basculerPleinEcran(); document.getElementById('planAmp').classList.remove('on'); arreterT3(); };
+// Plein écran : on masque tout sauf le plan ; on demande aussi le plein écran du navigateur quand il existe (Android, ordinateur)
+function basculerPleinEcran() {
+  const el = document.getElementById('planAmp'), plein = el.classList.toggle('plein');
+  try {
+    if (plein && document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+    else if (!plein && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  } catch (e) {}
+  document.getElementById('paRes').hidden = true;
+  renderPlanAeroport(false);
+}
+// Sortie du plein écran du navigateur (bouton retour, Échap) : on réaffiche aussi les commandes du plan
+document.addEventListener('fullscreenchange', () => { const el = document.getElementById('planAmp'); if (!document.fullscreenElement && el.classList.contains('plein')) { el.classList.remove('plein'); renderPlanAeroport(false); } });
 
-/* ---------- Terminaux en 3D : construits à partir des données du plan officiel (data/terminaux3d.json,
-   généré par models/terminaux_build.py). x = est, z = sud, en mètres ; un niveau tous les nivH mètres. ---------- */
-const T3 = {data: null, chargement: null, niv: {}, labels: [], route: null, balade: false, yaw: 0, pitch: 0, raf: null, node: null, anim: null, fleches: []};
-const T3_SOL = .3, T3_YEUX = 1.7, T3_PLAFOND = 5.2;
-const T3_COUL = {sol: '#F4F3F0', mur: '#B9C0CC', bloc: '#DADDE3', comptoir: '#98A1B3', porte: '#D2C3FF'};
-const t3Niveau = (term, ord) => T3.data.terminaux.find(t => t.id === term).niveaux.find(n => n.ord === ord);
-const t3Y = ord => (ord - 1) * T3.data.nivH;
+/* ---------- Terminaux en 3D (vue du dessus) : construits à partir des données du plan officiel
+   (data/terminaux3d.json, généré par models/terminaux_build.py). x = est, z = sud, en mètres. ---------- */
+const T3 = {data: null, chargement: null, donnees: null, niv: {}, labels: [], route: null, routeDef: null, lieu: null, resultats: [], raf: null, tween: null};
+const T3_SOL = .3, T3_NIV = 14; // écart vertical entre niveaux (agrandi pour lire la vue « tous les niveaux »)
+const T3_COUL = {mur: '#C6CCD6', bloc: '#E1E4E9', comptoir: '#8E98AC', porte: '#E6DDFF', siege: '#56637E', facade: '#A9C8E0', arete: '#8D96A8'};
+const t3Y = ord => (ord - 1) * T3_NIV;
+// Vue « tous les niveaux » : étages écartés (vue éclatée) pour lire l'itinéraire d'un niveau à l'autre
+const T3_ECLAT = 28, eclate = y => PA.ord === 0 ? y + Math.round(y / T3_NIV) * T3_ECLAT : y;
 const nomPorte = n => 'Porte ' + n.replace(/^porte\s+(d['’]embarquement\s+)?/i, '').trim();
+const nomLieu = p => p.cat === 'gate' ? nomPorte(p.n) : p.n;
+function chargerDonneesT3() {
+  return T3.data ? Promise.resolve() : (T3.donnees || (T3.donnees = fetch('data/terminaux3d.json').then(r => { if (!r.ok) throw r; return r.json(); }).then(d => { T3.data = d; }).catch(e => { T3.donnees = null; throw e; })));
+}
 function chargerT3() {
-  return T3.chargement || (T3.chargement = Promise.all([loadThree(), chargerDonneesT3()])
-    .then(() => initT3())
-    .catch(e => { T3.chargement = null; throw e; }));
+  return T3.chargement || (T3.chargement = Promise.all([loadThree(), chargerDonneesT3()]).then(() => initT3()).catch(e => { T3.chargement = null; throw e; }));
 }
 function initT3() {
   const stage = document.getElementById('paStage');
   const r = T3.renderer = new THREE.WebGLRenderer({antialias: true, canvas: document.getElementById('t3Canvas')});
   r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   T3.scene = new THREE.Scene(); T3.scene.background = new THREE.Color('#E4E8EE');
-  T3.scene.fog = new THREE.Fog('#E4E8EE', 1200, 2600);
-  T3.cam = new THREE.PerspectiveCamera(45, 1, .3, 3000); T3.cam.rotation.order = 'YXZ';
+  T3.scene.fog = new THREE.Fog('#E4E8EE', 1400, 3000);
+  T3.cam = new THREE.PerspectiveCamera(45, 1, .5, 4000);
   T3.ctl = new THREE.OrbitControls(T3.cam, r.domElement);
-  Object.assign(T3.ctl, {enableDamping: true, dampingFactor: .09, maxPolarAngle: 1.45, minDistance: 8, maxDistance: 900, screenSpacePanning: false});
-  const sun = new THREE.DirectionalLight(0xffffff, .38); sun.position.set(-200, 400, 250);
-  T3.scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa3b2, .62), sun);
+  Object.assign(T3.ctl, {enableDamping: true, dampingFactor: .09, maxPolarAngle: 1.35, minDistance: 15, maxDistance: 1000, screenSpacePanning: false});
+  gestesCarte(T3.ctl);
+  const sun = new THREE.DirectionalLight(0xffffff, .42); sun.position.set(-200, 400, 250);
+  const contre = new THREE.DirectionalLight(0xffffff, .12); contre.position.set(250, 200, -300);
+  T3.scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa3b2, .6), sun, contre);
   const resize = () => { const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return; r.setSize(w, h, false); T3.cam.aspect = w / h; T3.cam.updateProjectionMatrix(); };
   new ResizeObserver(resize).observe(stage); resize();
+  // Carrelage du sol (dalles de 3 m)
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d'); g.fillStyle = '#F7F6F2'; g.fillRect(0, 0, 128, 128); g.strokeStyle = 'rgba(110,120,140,.2)'; g.lineWidth = 2; g.strokeRect(1, 1, 126, 126);
+  T3.texSol = new THREE.CanvasTexture(c); T3.texSol.wrapS = T3.texSol.wrapT = THREE.RepeatWrapping; T3.texSol.repeat.set(1 / 3, 1 / 3); T3.texSol.anisotropy = 4;
   construireContexteT3();
-  // Visite : glisser pour regarder autour, toucher une flèche au sol (ou un point du sol) pour avancer
+  // Toucher un endroit du plan : la vue s'y déplace ; toucher une boutique l'affiche
   let down = null;
-  r.domElement.addEventListener('pointerdown', e => { down = {x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY}; });
-  r.domElement.addEventListener('pointermove', e => {
-    if (!down || !T3.balade) return;
-    T3.yaw += (e.clientX - down.x) * .005; T3.pitch = Math.max(-1.1, Math.min(.9, T3.pitch + (e.clientY - down.y) * .004));
-    down.x = e.clientX; down.y = e.clientY;
-  });
-  r.domElement.addEventListener('pointerup', e => {
-    if (down && T3.balade && Math.hypot(e.clientX - down.x0, e.clientY - down.y0) < 8) toucherT3(e);
-    down = null;
-  });
-  // Clavier (ordinateur) : ↑ ↓ pour avancer / reculer, ← → pour tourner
-  document.addEventListener('keydown', e => {
-    if (!T3.balade || !document.getElementById('planAmp').classList.contains('on')) return;
-    const k = {ArrowUp: () => pasT3(1), ArrowDown: () => pasT3(-1), ArrowLeft: () => tournerT3(1), ArrowRight: () => tournerT3(-1)}[e.key];
-    if (k) { e.preventDefault(); k(); }
-  });
-  // Flèche au sol (chevron blanc cerclé de bleu nuit), pointant vers −z avant rotation
-  const chevron = new THREE.Shape([[0, 1.2], [1, .15], [1, -.45], [0, .55], [-1, -.45], [-1, .15]].map(([x, y]) => new THREE.Vector2(x, y)));
-  T3.flecheGeo = new THREE.ShapeGeometry(chevron); T3.flecheGeo.rotateX(-Math.PI / 2);
-  T3.flecheMat = new THREE.MeshBasicMaterial({color: '#ffffff', transparent: true, opacity: .95, depthTest: false});
-  T3.flecheBord = new THREE.MeshBasicMaterial({color: '#192640', transparent: true, opacity: .45, depthTest: false});
+  r.domElement.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+  r.domElement.addEventListener('pointerup', e => { if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) < 8) toucherPlanT3(e); down = null; });
 }
 const shapeT3 = anneaux => {
   const s = new THREE.Shape(anneaux[0].map(([x, z]) => new THREE.Vector2(x, -z)));
   for (const h of anneaux.slice(1)) s.holes.push(new THREE.Path(h.map(([x, z]) => new THREE.Vector2(x, -z))));
   return s;
 };
-// Une géométrie extrudée par couleur et hauteur (quelques dizaines de maillages par niveau)
-function maillagesT3(formes, y0, opts) {
+// Volumes extrudés regroupés par couleur et hauteur, avec leurs arêtes (rendu « maquette d'architecte »)
+function maillagesT3(formes, y0, opts = {}, arete = null) {
   const lots = {};
   for (const f of formes) { const k = f.coul + '|' + f.h; (lots[k] = lots[k] || {c: f.coul, h: f.h, s: []}).s.push(shapeT3(f.p)); }
-  return Object.values(lots).map(l => {
+  return Object.values(lots).flatMap(l => {
     const g = new THREE.ExtrudeGeometry(l.s, {depth: l.h, bevelEnabled: false}); g.rotateX(-Math.PI / 2);
-    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial(Object.assign({color: l.c}, opts))); m.position.y = y0; return m;
+    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial(Object.assign({color: l.c}, opts))); m.position.y = y0;
+    if (!arete) return [m];
+    const e = new THREE.LineSegments(new THREE.EdgesGeometry(g, 25), new THREE.LineBasicMaterial({color: arete, transparent: true, opacity: .5}));
+    e.position.y = y0; return [m, e];
   });
 }
+// Murs fins le long de contours : vitrines des boutiques (pièces ouvertes) et façades vitrées
+function mursT3(anneaux, y0, h, couleur, opts = {}) {
+  const pos = [];
+  for (const r of anneaux) r.forEach(([x1, z1], i) => { const [x2, z2] = r[(i + 1) % r.length]; pos.push(x1, y0, z1, x2, y0, z2, x2, y0 + h, z2, x1, y0, z1, x2, y0 + h, z2, x1, y0 + h, z1); });
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals();
+  return new THREE.Mesh(g, new THREE.MeshLambertMaterial(Object.assign({color: couleur, side: THREE.DoubleSide}, opts)));
+}
 const pastel = c => '#' + new THREE.Color(c).lerp(new THREE.Color('#ffffff'), .35).getHexString();
-function couleurT3(f) {
-  if (f.cat === 'gate') return T3_COUL.porte;
-  return f.g === 'local' || f.g === 'zone' ? pastel(f.c) : T3_COUL[f.g];
+const foncer = c => '#' + new THREE.Color(c).lerp(new THREE.Color('#4A5570'), .3).getHexString();
+const couleurT3 = f => f.cat === 'gate' ? T3_COUL.porte : f.g === 'local' || f.g === 'zone' ? pastel(f.c) : T3_COUL[f.g];
+function dansPoly(x, z, r) {
+  let ok = false;
+  for (let i = 0, j = r.length - 1; i < r.length; j = i++) if ((r[i][1] > z) !== (r[j][1] > z) && x < (r[j][0] - r[i][0]) * (z - r[i][1]) / (r[j][1] - r[i][1]) + r[i][0]) ok = !ok;
+  return ok;
+}
+// Rangées de sièges dans les salles d'embarquement (alignées sur le plus long côté de la zone)
+function siegesT3(formes, y) {
+  const pos = [];
+  for (const f of formes) {
+    if (f.cat !== 'gate' && f.cat !== 'relax.seating') continue;
+    const r = f.p[0]; if (r.length < 3) continue;
+    let L = 0, d = [1, 0];
+    r.forEach(([x1, z1], i) => { const [x2, z2] = r[(i + 1) % r.length], l = Math.hypot(x2 - x1, z2 - z1); if (l > L) { L = l; d = [(x2 - x1) / l, (z2 - z1) / l]; } });
+    const n = [-d[1], d[0]], us = r.map(([x, z]) => x * d[0] + z * d[1]), vs = r.map(([x, z]) => x * n[0] + z * n[1]);
+    const u0 = Math.min(...us), u1 = Math.max(...us), v0 = Math.min(...vs), v1 = Math.max(...vs);
+    if ((u1 - u0) * (v1 - v0) > 5000 || v1 - v0 < 5) continue;
+    for (let v = v0 + 2.2; v < v1 - 1.8; v += 2.6) for (let u = u0 + 1.6; u + 3.4 < u1 - 1.2; u += 4.6) {
+      const cu = u + 1.7, x = cu * d[0] + v * n[0], z = cu * d[1] + v * n[1];
+      if (dansPoly(x, z, r)) pos.push([x, z, Math.atan2(-d[1], d[0])]);
+    }
+  }
+  if (!pos.length) return null;
+  const geo = new THREE.BoxGeometry(3.4, .5, .6); geo.translate(0, .25, 0);
+  const im = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({color: T3_COUL.siege}), pos.length);
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0), un = new THREE.Vector3(1, 1, 1);
+  pos.forEach(([x, z, a], i) => { q.setFromAxisAngle(up, a); m4.compose(new THREE.Vector3(x, y, z), q, un); im.setMatrixAt(i, m4); });
+  return im;
 }
 function construireNiveauT3(term, n) {
   const key = term + n.ord;
   if (T3.niv[key]) return T3.niv[key];
-  const y = t3Y(n.ord), formes = n.formes.map(f => Object.assign({coul: couleurT3(f)}, f));
-  const plein = new THREE.Group(), sols = formes.filter(f => f.g === 'sol');
-  maillagesT3(sols, y, {}).forEach(m => { m.userData.sol = true; plein.add(m); });
-  maillagesT3(formes.filter(f => f.g !== 'sol'), y + .3, {}).forEach(m => plein.add(m));
+  const y = t3Y(n.ord), plein = new THREE.Group(), sols = n.formes.filter(f => f.g === 'sol');
+  // Sol carrelé
+  const solMat = new THREE.MeshLambertMaterial({color: '#ffffff', map: T3.texSol});
+  const gs = new THREE.ExtrudeGeometry(sols.map(f => shapeT3(f.p)), {depth: T3_SOL, bevelEnabled: false}); gs.rotateX(-Math.PI / 2);
+  const sol = new THREE.Mesh(gs, solMat); sol.position.y = y; sol.userData.sol = true; plein.add(sol);
+  // Boutiques, restaurants, services : sol coloré et vitrines basses (pièces ouvertes) ; zones (portes, escaliers…) à plat
+  const colores = n.formes.filter(f => f.g === 'local' || f.g === 'zone').map(f => Object.assign({}, f, {coul: couleurT3(f), h: .06}));
+  maillagesT3(colores, y + T3_SOL, {}).forEach(m => { m.userData.local = true; plein.add(m); });
+  const parCoul = {};
+  for (const f of n.formes) if (f.g === 'local') (parCoul[f.c] = parCoul[f.c] || []).push(...f.p);
+  for (const [c, rings] of Object.entries(parCoul)) {
+    const w = mursT3(rings, y + T3_SOL, 2.4, foncer(pastel(c))); w.userData.local = true; plein.add(w);
+    const bord = new THREE.LineSegments(new THREE.EdgesGeometry(w.geometry, 1), new THREE.LineBasicMaterial({color: foncer(c), transparent: true, opacity: .55}));
+    plein.add(bord);
+  }
+  // Murs, locaux techniques et comptoirs en volume, avec arêtes
+  maillagesT3(n.formes.filter(f => ['mur', 'bloc', 'comptoir'].includes(f.g)).map(f => Object.assign({}, f, {coul: T3_COUL[f.g]})), y + T3_SOL, {}, T3_COUL.arete).forEach(m => plein.add(m));
+  // Sièges des salles d'embarquement
+  const s = siegesT3(n.formes, y + T3_SOL); if (s) plein.add(s);
+  // Façade vitrée le long du contour du niveau
+  const facade = mursT3(sols.map(f => f.p[0]), y + T3_SOL, 6.5, T3_COUL.facade, {transparent: true, opacity: .2, depthWrite: false});
+  facade.userData.facade = true; plein.add(facade);
   // Version « fantôme » (niveaux inférieurs, vus en transparence sous le niveau affiché)
   const fantome = new THREE.Group();
-  maillagesT3(sols.map(f => Object.assign({}, f, {h: .2})), y, {transparent: true, opacity: .35, depthWrite: false}).forEach(m => fantome.add(m));
+  maillagesT3(sols.map(f => Object.assign({}, f, {coul: '#DADDE4', h: .2})), y, {transparent: true, opacity: .4, depthWrite: false}).forEach(m => fantome.add(m));
   plein.visible = fantome.visible = false; T3.scene.add(plein, fantome);
-  // Panneaux de porte (jaunes, comme à l'aéroport) au-dessus de chaque porte : visibles pendant la visite
-  const panneaux = new THREE.Group(); panneaux.visible = false;
-  for (const p of T3.data.pois) if (p.cat === 'gate' && p.f === n.id) {
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: panneauT3(nomPorte(p.n).slice(6), false), depthWrite: false}));
-    sp.scale.set(3, 1.5, 1); sp.position.set(p.xz[0], y + T3_SOL + 3.4, p.xz[1]); sp.userData.porte = nomPorte(p.n);
-    panneaux.add(sp);
-  }
-  T3.scene.add(panneaux);
-  // Emprise du niveau pour cadrer la caméra : cœur du cheminement piéton de ce niveau
-  // (5e–95e centile, pour ignorer les chemins extérieurs vers les parkings)
+  // Emprise : cœur du cheminement piéton du niveau (5e–95e centile, sans les chemins extérieurs vers les parkings)
   const fi = T3.data.nav.floors.indexOf(n.id), ns = T3.data.nav.nodes.filter(q => q[2] === fi);
   const cent = (k, q) => { const v = ns.map(a => a[k]).sort((a, b) => a - b); return v[Math.floor(q * (v.length - 1))]; };
   const box = new THREE.Box3(new THREE.Vector3(cent(0, .05), y, cent(1, .05)), new THREE.Vector3(cent(0, .95), y, cent(1, .95)));
-  return (T3.niv[key] = {plein, fantome, panneaux, box, y, term, ord: n.ord, id: n.id, n});
-}
-// Texture de panneau de porte : fond jaune et numéro noir (violet / blanc pour votre porte)
-function panneauT3(txt, mine) {
-  const c = document.createElement('canvas'); c.width = 256; c.height = 128;
-  const g = c.getContext('2d'); g.fillStyle = mine ? '#6032EC' : '#F5C400'; g.fillRect(0, 0, 256, 128);
-  g.fillStyle = mine ? '#fff' : '#111'; g.font = 'bold 54px Inter, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillText(txt, 128, 52); g.font = 'bold 22px Inter, Arial, sans-serif'; g.fillText(mine ? 'VOTRE PORTE' : 'PORTE', 128, 100);
-  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
-}
-// Intérieur pour la visite : plafond et façades vitrées le long du contour du niveau
-function interieurT3(nv) {
-  if (nv.interieur) return nv.interieur;
-  const g = new THREE.Group(), y = nv.y + T3_SOL, sols = nv.n.formes.filter(f => f.g === 'sol');
-  maillagesT3(sols.map(f => ({p: f.p, h: .1, coul: '#FBFBF8'})), y + T3_PLAFOND, {}).forEach(m => { m.material = new THREE.MeshBasicMaterial({color: '#EDEFF2', side: THREE.DoubleSide}); g.add(m); });
-  const pos = [];
-  for (const f of sols) {
-    const r = f.p[0];
-    r.forEach(([x1, z1], i) => { const [x2, z2] = r[(i + 1) % r.length]; pos.push(x1, y, z1, x2, y, z2, x2, y + T3_PLAFOND, z2, x1, y, z1, x2, y + T3_PLAFOND, z2, x1, y + T3_PLAFOND, z1); });
-  }
-  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.computeVertexNormals();
-  g.add(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({color: '#9FC3DD', transparent: true, opacity: .3, side: THREE.DoubleSide, depthWrite: false})));
-  g.visible = false; T3.scene.add(g);
-  return (nv.interieur = g);
+  return (T3.niv[key] = {plein, fantome, solMat, box, y, term, ord: n.ord, id: n.id, n});
 }
 function construireContexteT3() {
   const d = T3.data, sol = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), new THREE.MeshLambertMaterial({color: '#D6DACF'}));
@@ -1749,136 +1807,149 @@ function construireContexteT3() {
   // Emprises des terminaux : les bâtiments du fond de plan qui les recouvrent ne sont pas dessinés
   const emprises = d.terminaux.map(t => { const b = new THREE.Box3(); t.niveaux[0].formes.filter(f => f.g === 'sol').forEach(f => f.p[0].forEach(([x, z]) => b.expandByPoint(new THREE.Vector3(x, 0, z)))); return b; });
   const dedans = p => { const c = p.reduce((a, [x, z]) => [a[0] + x / p.length, a[1] + z / p.length], [0, 0]); return emprises.some(b => b.containsPoint(new THREE.Vector3(c[0], 0, c[1]))); };
-  const plat = {'basemap.runway': '#C3C8D0', 'basemap.road': '#D3D6DC', 'parking': '#D9DEE6'};
+  const plat = {'basemap.runway': '#BFC4CC', 'basemap.road': '#CDD1D8', 'parking': '#D9DEE6'};
   const formes = [];
   for (const c of d.contexte) {
     if (c.cat === 'element.building') { if (!dedans(c.p)) formes.push({p: [c.p], h: 7, coul: '#D3D7DE'}); }
     else if (plat[c.cat]) formes.push({p: [c.p], h: .02, coul: plat[c.cat]});
   }
-  maillagesT3(formes, -.04, {}).forEach(m => T3.scene.add(m));
+  maillagesT3(formes, -.04, {}, '#AEB5C2').forEach(m => T3.scene.add(m));
 }
-// Niveau affiché par terminal : le niveau choisi pour le terminal sélectionné, le niveau 1 pour l'autre
+// Affichage : le niveau choisi (ou tous les niveaux, PA.ord = 0) pour le terminal sélectionné, le niveau 1 pour l'autre
 function afficherT3(cadrer = true) {
   const load = document.getElementById('t3Load');
   if (!T3.renderer) {
     load.hidden = false; load.textContent = 'Chargement des terminaux en 3D…';
     chargerT3().then(() => {
-      load.hidden = true; afficherT3(true);
-      const o = T3.ouvrirSur; T3.ouvrirSur = null;
-      if (o === 'porte') routeVersPorteT3(); else if (o && o.poi) montrerLieuT3(o.poi); else entrerBaladeT3();
-    })
-      .catch(() => { load.textContent = 'Vue 3D indisponible : ouvrez l’app via http://localhost:8765.'; });
+      load.hidden = true; const o = T3.ouvrirSur; T3.ouvrirSur = null;
+      afficherT3(true, true);
+      if (o === 'porte') routeVersPorteT3(); else if (o && o.poi) montrerLieuT3(o.poi);
+    }).catch(() => { load.textContent = 'Vue 3D indisponible : ouvrez l’app via http://localhost:8765.'; });
     return;
   }
   load.hidden = true;
+  const tous = PA.ord === 0;
   for (const t of T3.data.terminaux) {
-    const ordVu = t.id === PA.term ? PA.ord : 1;
+    const sel = t.id === PA.term;
     for (const n of t.niveaux) {
       const nv = construireNiveauT3(t.id, n);
-      nv.plein.visible = n.ord === ordVu; nv.fantome.visible = n.ord < ordVu;
-      if (nv.interieur) nv.interieur.visible = false;
-      nv.panneaux.visible = false;
-    }
-  }
-  if (T3.balade) {
-    const cur = T3.niv[PA.term + PA.ord], mp = vol().term === PA.term ? porteConnue() : null;
-    interieurT3(cur).visible = true; cur.panneaux.visible = true;
-    for (const sp of cur.panneaux.children) {
-      const mine = sp.userData.porte === mp;
-      if (sp.userData.mine !== mine) { sp.material.map = panneauT3(sp.userData.porte.slice(6), mine); sp.material.needsUpdate = true; sp.userData.mine = mine; }
+      nv.plein.visible = sel ? tous || n.ord === PA.ord : n.ord === 1;
+      nv.fantome.visible = sel && !tous && n.ord < PA.ord;
+      nv.plein.position.y = tous && sel ? (n.ord - 1) * T3_ECLAT : 0;
+      for (const o of nv.plein.children) if (o.userData.facade) o.visible = !(tous && sel); // vue éclatée : sans façades, plus lisible
     }
   }
   if (T3.route && T3.route.term !== PA.term) effacerRouteT3();
+  if (T3.route && T3.route.eclate !== tous) tubeRouteT3();
   labelsT3(); majPositionT3();
-  // Vue d'ensemble : itinéraire visible à travers les planchers ; en balade, caché par les murs
-  if (T3.route) { T3.route.tube.material.visible = !T3.balade; T3.route.tube.children[0].visible = T3.balade; }
-  const nv = T3.niv[PA.term + PA.ord];
-  if (T3.balade) placerBaladeT3(nv);
-  else if (cadrer) cadrerT3(T3.route ? new THREE.Box3().setFromPoints(T3.route.pts) : nv.box, nv.y);
-  document.getElementById('t3Hint').textContent = T3.balade ? 'Touchez une flèche pour avancer · glissez pour regarder' : 'Glissez pour pivoter · pincez pour zoomer';
+  if (cadrer) {
+    const niveaux = Object.values(T3.niv).filter(nv => nv.term === PA.term && (tous || nv.ord === PA.ord));
+    const box = T3.route ? new THREE.Box3().setFromPoints(T3.route.pts.map(q => q.clone().setY(eclate(q.y))))
+      : niveaux.reduce((b, nv) => b.union(nv.box.clone().translate(new THREE.Vector3(0, eclate(nv.y) - nv.y, 0))), new THREE.Box3());
+    cadrerT3(box, tous, arguments[1]);
+  }
   piedT3();
   if (!T3.raf) boucleT3();
 }
-// Cadre une emprise en vue 3/4, en tenant compte de l'écran en portrait
-function cadrerT3(box, y) {
+// Cadre une emprise en vue 3/4 (plus de côté pour la vue de tous les niveaux)
+function cadrerT3(box, tous, instant) {
   const c = box.getCenter(new THREE.Vector3()), s = box.getSize(new THREE.Vector3());
-  const half = Math.tan(T3.cam.fov * Math.PI / 360), dist = Math.max(s.x, s.z) / 2 / (half * Math.min(1, T3.cam.aspect)) * 1.15 + 30;
-  T3.ctl.target.set(c.x, y, c.z); T3.cam.position.set(c.x - dist * .3, y + dist * .8, c.z + dist * .5); T3.ctl.update();
+  const half = Math.tan(T3.cam.fov * Math.PI / 360), dist = Math.max(s.x, s.z, s.y * 2) / 2 / (half * Math.min(1, T3.cam.aspect)) * (tous ? .62 : .9) + 30;
+  const dir = tous ? new THREE.Vector3(-.6, .42, .68) : new THREE.Vector3(-.3, .8, .5);
+  camToT3(c.clone().add(dir.normalize().multiplyScalar(dist)), c, instant);
+}
+function camToT3(pos, cible, instant) {
+  if (instant) { T3.cam.position.copy(pos); T3.ctl.target.copy(cible); T3.tween = null; T3.ctl.update(); return; }
+  T3.tween = {t0: performance.now(), p0: T3.cam.position.clone(), c0: T3.ctl.target.clone(), p1: pos.clone(), c1: cible.clone()};
+}
+// Déplace la vue vers un point (en gardant l'angle, en se rapprochant un peu)
+function allerVersT3(pt, distMax = 110) {
+  const off = T3.cam.position.clone().sub(T3.ctl.target);
+  off.setLength(Math.min(off.length(), distMax));
+  camToT3(pt.clone().add(off), pt.clone());
 }
 function arreterT3() { cancelAnimationFrame(T3.raf); T3.raf = null; }
-// Étiquettes : portes, contrôles, boutiques, restaurants… du niveau affiché
+// Toucher le plan : si c'est une boutique (ou un restaurant…), on l'affiche ; sinon la vue se déplace vers le point touché
+function toucherPlanT3(e) {
+  document.getElementById('paRes').hidden = true;
+  const rc = T3.renderer.domElement.getBoundingClientRect(), ray = new THREE.Raycaster();
+  ray.setFromCamera({x: (e.clientX - rc.left) / rc.width * 2 - 1, y: -(e.clientY - rc.top) / rc.height * 2 + 1}, T3.cam);
+  const vus = Object.values(T3.niv).filter(nv => nv.plein.visible);
+  const hit = ray.intersectObjects(vus.flatMap(nv => nv.plein.children.filter(o => o.isMesh && !o.userData.facade)), false)[0];
+  if (!hit) return;
+  const nv = vus.find(v => v.plein.children.includes(hit.object));
+  if (hit.object.userData.local && nv) {
+    let best = null, bd = 14;
+    for (const p of T3.data.pois) if (p.f === nv.id && LIEUX_CAT.test(p.cat) && p.cat !== 'gate') { const d = Math.hypot(p.xz[0] - hit.point.x, p.xz[1] - hit.point.z); if (d < bd) { bd = d; best = p; } }
+    if (best) return montrerLieuT3(best);
+  }
+  allerVersT3(hit.point);
+}
+// Icônes des catégories (étiquettes et résultats)
+const ICONE = c => c.startsWith('eat.coffee') ? '☕' : c.startsWith('eat') ? '🍴' : c.startsWith('shop') ? '🛍' : c.startsWith('restroom') ? '🚻'
+  : c === 'relax.lounge' ? '🛋' : c.startsWith('relax') ? '💺' : /^services\.(atm|bank)/.test(c) ? '🏧' : c.startsWith('services.currency') ? '💱'
+  : c.startsWith('services') ? 'ℹ️' : c === 'security.checkpoint' ? '🛂' : c === 'checkin' || c.startsWith('baggage') ? '🧳' : c === 'gate' ? '🛫' : '📍';
+// Étiquettes : portes, contrôles, boutiques et restaurants (touchables), résultats, itinéraire, « Vous êtes ici »
 function labelsT3() {
   const box = document.getElementById('t3Labels'); box.innerHTML = ''; T3.labels = [];
-  const nv = T3.niv[PA.term + PA.ord], maPorte = vol().term === PA.term ? porteConnue() : null;
-  for (const p of T3.data.pois.filter(q => q.f === nv.id)) {
+  const tous = PA.ord === 0, ids = new Set(T3.data.terminaux.find(t => t.id === PA.term).niveaux.filter(n => tous || n.ord === PA.ord).map(n => n.id));
+  const maPorte = vol().term === PA.term ? porteConnue() : null;
+  const ajoute = (txt, cls, v, extra = {}) => {
+    const el = document.createElement(extra.poi ? 'button' : 'div'); el.className = 'p3-lbl ' + cls; el.textContent = txt;
+    if (extra.poi) { el.dataset.lieu = extra.poi.id; el.style.pointerEvents = 'auto'; }
+    box.appendChild(el); const l = Object.assign({txt, el, v, proche: 0}, extra); T3.labels.push(l); return l;
+  };
+  const yDe = p => t3Y(niveauDuPoi(p).ord);
+  for (const p of T3.data.pois) {
+    if (!ids.has(p.f)) continue;
     let txt, cls, proche = 0;
     if (p.cat === 'gate') { txt = nomPorte(p.n); cls = txt === maPorte ? 'me' : 'tag'; if (cls === 'me') txt = `Votre porte · ${txt.slice(6)}`; }
-    else if (p.cat === 'security.checkpoint') { txt = 'Contrôle sûreté'; cls = 'tag'; }
-    else if (/^(shop|eat|relax\.lounge|services)/.test(p.cat)) { txt = p.n; cls = 'mini'; proche = 170; }
-    else if (/^(checkin|baggage\.claim)/.test(p.cat)) { txt = p.n; cls = 'mini'; proche = 120; }
-    else if (/^restroom/.test(p.cat)) { txt = 'WC'; cls = 'mini'; proche = 90; }
+    else if (tous) continue; // vue de tous les niveaux : seulement les portes et l'itinéraire
+    else if (p.cat === 'security.checkpoint') { txt = '🛂 Contrôle sûreté'; cls = 'tag'; }
+    else if (/^(shop|eat|relax\.lounge)/.test(p.cat) && p.cat !== 'eat.vending') { txt = `${ICONE(p.cat)} ${p.n}`; cls = 'mini'; proche = 230; }
+    else if (/^(services\.(atm|currencyexchange|information|firstaid)|checkin|baggage\.claim)/.test(p.cat)) { txt = `${ICONE(p.cat)} ${p.n}`; cls = 'mini'; proche = 150; }
+    else if (/^restroom/.test(p.cat)) { txt = '🚻'; cls = 'mini'; proche = 110; }
     else continue;
     // Une seule étiquette pour un même nom à moins de 30 m (ex. les deux files du contrôle sûreté)
     if (T3.labels.some(l => l.txt === txt && Math.hypot(l.v.x - p.xz[0], l.v.z - p.xz[1]) < 30)) continue;
-    const el = document.createElement('div'); el.className = 'p3-lbl ' + cls; el.textContent = txt; box.appendChild(el);
-    T3.labels.push({txt, el, v: new THREE.Vector3(p.xz[0], nv.y + (cls === 'mini' ? 3.4 : 4.2), p.xz[1]), proche, porte: p.cat === 'gate'});
+    ajoute(txt, cls, new THREE.Vector3(p.xz[0], yDe(p) + (cls === 'mini' ? 3.4 : 4.6), p.xz[1]), {proche, poi: p});
   }
-  if (T3.lieu && T3.lieu.f === nv.id) {
-    const p = T3.lieu, el = document.createElement('div'); el.className = 'p3-lbl me'; el.textContent = '📍 ' + (p.cat === 'gate' ? nomPorte(p.n) : p.n); box.appendChild(el);
-    T3.labels.push({txt: '', el, v: new THREE.Vector3(p.xz[0], nv.y + 5, p.xz[1]), proche: 0});
+  if (tous) for (const nv of Object.values(T3.niv)) if (nv.term === PA.term) {
+    const c = nv.box.getCenter(new THREE.Vector3());
+    ajoute(`Niveau ${nv.ord} · ${nv.n.details || nv.n.nom}`, 'term', new THREE.Vector3(nv.box.min.x, nv.y + 2, c.z));
   }
-  if (T3.route && T3.route.term === PA.term && GEO.etat !== 'ok') {
-    const el = document.createElement('div'); el.className = 'p3-lbl me'; el.textContent = 'Départ · enregistrement'; box.appendChild(el);
-    T3.labels.push({txt: '', el, v: T3.route.depart.clone().setY(T3.route.depart.y + 3), proche: 0});
+  // Résultats de la catégorie ou de la recherche : épingles bien visibles
+  for (const p of T3.resultats) if (ids.has(p.f) && p !== T3.lieu) ajoute(`${ICONE(p.cat)} ${nomLieu(p)}`, 'res', new THREE.Vector3(p.xz[0], yDe(p) + 5, p.xz[1]), {poi: p});
+  if (T3.lieu && ids.has(T3.lieu.f)) ajoute('📍 ' + nomLieu(T3.lieu), 'me', new THREE.Vector3(T3.lieu.xz[0], yDe(T3.lieu) + 6.5, T3.lieu.xz[1]));
+  const r = T3.route;
+  if (r && r.term === PA.term) {
+    if (GEO.etat !== 'ok') ajoute(`Départ · ${r.depuis.replace(/^l’/, '')}`, 'me', r.pts[0].clone().setY(r.pts[0].y + 3));
+    if (r.via && r.via.nom !== (T3.lieu && nomLieu(T3.lieu))) { const q = r.pts[r.via.i]; ajoute(`Étape · ${r.via.nom}`, 'me', q.clone().setY(q.y + 5)); }
   }
   T3.moiLbl = null;
   if (GEO.etat === 'ok' && GEO.term === PA.term) {
-    const el = document.createElement('div'); el.className = 'p3-lbl moi'; el.textContent = 'Vous êtes ici'; box.appendChild(el);
-    T3.moiLbl = {txt: '', el, v: new THREE.Vector3(GEO.x, t3Y(GEO.ord) + 3.5, GEO.z), proche: 0, moi: true};
-    T3.labels.push(T3.moiLbl);
+    const q = posGeo(); T3.moiLbl = ajoute('Vous êtes ici', 'moi', new THREE.Vector3(q.x, t3Y(GEO.ord) + 3.5, q.z));
   }
 }
 function boucleT3() {
   T3.raf = requestAnimationFrame(boucleT3);
-  if (T3.balade) {
-    const now = performance.now(), dt = Math.min(.05, (now - (T3.t || now)) / 1000); T3.t = now;
-    const A = T3.anim, cam = T3.cam.position;
-    if (A) { // marche le long des points du cheminement
-      let pas = 7 * dt;
-      while (pas > 0 && A.k < A.pts.length) {
-        const t = A.pts[A.k], dx = t.x - cam.x, dz = t.z - cam.z, l = Math.hypot(dx, dz);
-        if (A.tourne && l > .3) { const a = Math.atan2(-dx, -dz); T3.yaw += Math.atan2(Math.sin(a - T3.yaw), Math.cos(a - T3.yaw)) * Math.min(1, 5 * dt); }
-        if (l <= pas) { cam.x = t.x; cam.z = t.z; pas -= l; A.k++; } else { cam.x += dx / l * pas; cam.z += dz / l * pas; pas = 0; }
-      }
-      if (A.k >= A.pts.length) {
-        T3.node = A.fin; T3.anim = null; flechesT3();
-        // Arrivé : si rien ne continue devant, on se tourne vers le couloir le plus proche (comme Street View)
-        const dirs = directionsT3();
-        // Plus de couloir devant (fond de hall, entrée de boutique) : on se tourne vers le couloir principal le plus proche
-        if (dirs.length && !dirs.some(d => !d.impasse && ecartAng(d.a, T3.yaw) < .6)) {
-          const sc = d => ecartAng(d.a, T3.yaw) + (d.impasse ? 10 : 0);
-          let best = dirs[0]; for (const d of dirs) if (sc(d) < sc(best)) best = d;
-          T3.yawCible = best.a;
-        }
-      }
-    }
-    if (T3.yawCible != null) { const d = Math.atan2(Math.sin(T3.yawCible - T3.yaw), Math.cos(T3.yawCible - T3.yaw)); T3.yaw += d * Math.min(1, 8 * dt); if (Math.abs(d) < .005) T3.yawCible = null; }
-    T3.cam.rotation.set(T3.pitch, T3.yaw, 0);
-    const k = 1 + .08 * Math.sin(now / 260); for (const f of T3.fleches) f.scale.set(k, 1, k);
-  } else T3.ctl.update();
+  if (T3.tween) {
+    const tw = T3.tween, t = Math.min(1, (performance.now() - tw.t0) / 650), k = 1 - Math.pow(1 - t, 3);
+    T3.cam.position.lerpVectors(tw.p0, tw.p1, k); T3.ctl.target.lerpVectors(tw.c0, tw.c1, k);
+    if (t === 1) T3.tween = null;
+  }
+  T3.ctl.update();
   if (T3.moi && T3.moi.visible) { const h = T3.moi.userData.halo, r = Math.max(4, Math.min(30, GEO.prec || 5)) * (1 + .12 * Math.sin(performance.now() / 300)); h.scale.set(r, r, 1); }
   T3.renderer.render(T3.scene, T3.cam);
-  const el = T3.renderer.domElement, w = el.clientWidth, h = el.clientHeight, tmp = new THREE.Vector3();
-  const dCam = T3.balade ? 0 : T3.cam.position.distanceTo(T3.ctl.target);
+  const el = T3.renderer.domElement, w = el.clientWidth, h = el.clientHeight, tmp = new THREE.Vector3(), dCam = T3.cam.position.distanceTo(T3.ctl.target);
   for (const l of T3.labels) {
-    const p = tmp.copy(l.v).project(T3.cam);
-    // En visite, les portes sont signalées par les panneaux jaunes : pas d'étiquette en double
-    const vis = p.z < 1 && Math.abs(p.x) < 1.2 && Math.abs(p.y) < 1.1 && (T3.balade ? !l.porte && !l.moi && T3.cam.position.distanceTo(l.v) < (l.proche ? 45 : 90) : !l.proche || dCam < l.proche);
+    tmp.copy(l.v); tmp.y = eclate(tmp.y); const p = tmp.project(T3.cam);
+    const vis = p.z < 1 && Math.abs(p.x) < 1.2 && Math.abs(p.y) < 1.1 && (!l.proche || dCam < l.proche);
     l.el.style.display = vis ? '' : 'none';
     if (vis) l.el.style.transform = `translate(${((p.x + 1) / 2 * w).toFixed(1)}px,${((1 - p.y) / 2 * h).toFixed(1)}px) translate(-50%,-100%)`;
   }
 }
-/* ---------- Itinéraire jusqu'à la porte (réseau piéton officiel) ---------- */
+/* ---------- Itinéraires (réseau piéton officiel) ---------- */
 function noeudProcheT3(x, z, floor) {
   let best = -1, bd = Infinity;
   T3.data.nav.nodes.forEach(([nx, nz, f], i) => { if (f !== floor) return; const d = (nx - x) ** 2 + (nz - z) ** 2; if (d < bd) { bd = d; best = i; } });
@@ -1904,185 +1975,86 @@ function cheminT3(a, b) {
   const c = []; for (let u = b; u >= 0; u = prev[u]) c.unshift(u);
   return c[0] === a ? c : null;
 }
-function routeVersPorteT3() {
-  const d = T3.data, v = vol(), floors = d.nav.floors;
-  if (!porteConnue()) return toast(`Votre porte n’est pas encore annoncée (vers ${annonceVers(v)})`);
-  const porte = d.pois.find(p => p.cat === 'gate' && nomPorte(p.n) === v.porte);
-  if (!porte) return toast('Itinéraire indisponible pour cette porte');
-  // Départ : votre position si elle est connue, sinon le hall d'enregistrement
-  const dep = departT3(v.term), ch = cheminT3(dep.node, noeudProcheT3(porte.xz[0], porte.xz[1], floors.indexOf(porte.f)));
-  if (!ch) return toast('Itinéraire indisponible pour cette porte');
-  tracerRouteT3(ch, v.term, v.porte, dep.txt);
-  PA.term = v.term; PA.ord = GEO.etat === 'ok' ? GEO.ord : d.terminaux.flatMap(t => t.niveaux).find(n => n.id === porte.f).ord;
-  renderPlanAeroport();
+const capT3 = (x1, z1, x2, z2) => Math.atan2(-(x2 - x1), -(z2 - z1));
+// Calcule l'itinéraire décrit par def : {porte: true} vers votre porte, {dest: poi} vers un lieu ; via : étape en chemin
+function calculerRouteT3(def) {
+  const d = T3.data, floors = d.nav.floors, v = vol(), noeud = p => noeudProcheT3(p.xz[0], p.xz[1], floors.indexOf(p.f));
+  const cible = def.porte ? d.pois.find(p => p.cat === 'gate' && nomPorte(p.n) === v.porte) : def.dest;
+  if (!cible) { toast('Itinéraire indisponible pour cette porte'); return false; }
+  const term = niveauDuPoi(cible).term, dep = departT3(term);
+  let ch, via = null;
+  if (def.via) {
+    const a = cheminT3(dep.node, noeud(def.via)), b = a && cheminT3(noeud(def.via), noeud(cible));
+    if (a && b) { ch = a.concat(b.slice(1)); via = {i: a.length - 1, nom: nomLieu(def.via), cat: def.via.cat}; }
+  } else ch = cheminT3(dep.node, noeud(cible));
+  if (!ch) { toast('Itinéraire indisponible'); return false; }
+  T3.routeDef = def; T3.routeCalc = performance.now();
+  tracerRouteT3(ch, term, def.porte ? v.porte : nomLieu(cible), dep.txt, via);
+  return true;
 }
-function tracerRouteT3(ch, term, vers, depuis = 'l’enregistrement') {
+// Niveau à afficher pour un itinéraire : le vôtre si la position est connue, sinon tous les niveaux s'il en change
+function niveauPourRouteT3() {
+  if (GEO.etat === 'ok') return GEO.ord;
+  const ys = new Set(T3.route.pts.map(q => Math.round(q.y))); return ys.size > 1 ? 0 : Math.round((T3.route.pts[0].y - .9) / T3_NIV) + 1;
+}
+function routeVersPorteT3() {
+  if (!porteConnue()) return toast(`Votre porte n’est pas encore annoncée (vers ${annonceVers(vol())})`);
+  if (!calculerRouteT3({porte: true})) return;
+  T3.lieu = null; T3.resultats = []; PA.term = vol().term; PA.ord = niveauPourRouteT3(); renderPlanAeroport();
+}
+function routeVersLieuT3(ajouterAuTrajet) {
+  const p = T3.lieu; if (!p) return;
+  if (!calculerRouteT3(ajouterAuTrajet ? {porte: true, via: p} : {dest: p})) return;
+  T3.lieu = null; T3.resultats = []; PA.term = T3.route.term; PA.ord = niveauPourRouteT3(); renderPlanAeroport();
+  if (ajouterAuTrajet) toast(`${nomLieu(p)} ajouté à votre trajet vers la ${vol().porte}`);
+}
+function tracerRouteT3(ch, term, vers, depuis, via) {
   const d = T3.data, floors = d.nav.floors;
   effacerRouteT3();
   const ordDe = f => d.terminaux.flatMap(t => t.niveaux).find(n => n.id === floors[f]).ord;
   const pts = ch.map(i => { const [x, z, f] = d.nav.nodes[i]; return new THREE.Vector3(x, t3Y(ordDe(f)) + .9, z); });
   let m = 0; for (let i = 1; i < pts.length; i++) m += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].z - pts[i - 1].z);
-  // Deux tracés : épais et visible à travers les planchers en vue d'ensemble (la partie au niveau 1 reste lisible
-  // sous le niveau 2), fin et posé au sol pendant la balade
-  const courbe = dy => new THREE.CatmullRomCurve3(pts.map(q => q.clone().setY(q.y + dy)), false, 'catmullrom', 0);
-  const tube = new THREE.Mesh(new THREE.TubeGeometry(courbe(0), pts.length * 4, .9, 6), new THREE.MeshBasicMaterial({color: '#6032EC', depthTest: false, transparent: true, opacity: .92}));
-  tube.renderOrder = 10;
-  const trace = new THREE.Mesh(new THREE.TubeGeometry(courbe(-.5), pts.length * 4, .18, 5), new THREE.MeshBasicMaterial({color: '#6032EC'}));
-  tube.add(trace); T3.scene.add(tube);
-  T3.route = Object.assign({term, tube, m: Math.round(m), pts, depart: pts[0], vers, depuis}, etapesT3(pts, vers));
+  T3.route = Object.assign({term, m: Math.round(m), pts, vers, depuis, via}, etapesT3(pts, vers, via));
+  tubeRouteT3();
 }
-function effacerRouteT3() { if (!T3.route) return; T3.scene.remove(T3.route.tube); T3.route.tube.traverse(o => o.geometry && o.geometry.dispose()); T3.route = null; }
-/* ---------- Visite à hauteur d'yeux, façon Street View : on avance de point en point le long du cheminement
-   piéton officiel, en touchant les flèches au sol (ou ↑ ↓ ← → au clavier) ---------- */
-const ecartAng = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
-// Cap (même convention que la caméra : 0 = vers −z) d'un point à un autre
-const capT3 = (x1, z1, x2, z2) => Math.atan2(-(x2 - x1), -(z2 - z1));
-// Voisins au même niveau ; les points confondus du réseau officiel (segments de longueur nulle) sont traversés
-const voisinsT3 = i => {
-  const N = T3.data.nav.nodes, out = new Set(), vu = new Set([i]), file = [i];
-  while (file.length) {
-    const u = file.pop();
-    for (const [j] of adjT3()[u]) {
-      if (vu.has(j) || N[j][2] !== N[i][2]) continue;
-      vu.add(j);
-      if (Math.hypot(N[j][0] - N[i][0], N[j][1] - N[i][1]) < .3) file.push(j); else out.add(j);
+// Tracé épais, visible à travers les planchers ; refait quand on passe à la vue éclatée (et inversement)
+function tubeRouteT3() {
+  const r = T3.route; if (!r) return;
+  if (r.tube) { T3.scene.remove(r.tube); r.tube.geometry.dispose(); }
+  const pts = r.pts.map(q => q.clone().setY(eclate(q.y)));
+  r.tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0), pts.length * 4, .9, 6),
+    new THREE.MeshBasicMaterial({color: '#6032EC', depthTest: false, transparent: true, opacity: .92}));
+  r.tube.renderOrder = 10; r.eclate = PA.ord === 0; T3.scene.add(r.tube);
+}
+function effacerRouteT3() { if (!T3.route) return; if (T3.route.tube) { T3.scene.remove(T3.route.tube); T3.route.tube.geometry.dispose(); } T3.route = null; }
+// Instructions de l'itinéraire : changements de niveau, virages marqués, étape et arrivée
+function etapesT3(pts, vers, via) {
+  const cum = [0], out = [];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].z - pts[i - 1].z));
+  const ordDe = y => Math.round((y - .9) / T3_NIV) + 1;
+  let cap0 = null, last = 0;
+  for (let i = 1; i < pts.length; i++) {
+    if (Math.abs(pts[i].y - pts[i - 1].y) > 1) {
+      out.push({i: i - 1, txt: `${pts[i].y > pts[i - 1].y ? 'Montez' : 'Descendez'} au niveau ${ordDe(pts[i].y)}`, ic: pts[i].y > pts[i - 1].y ? '⇡' : '⇣'});
+      cap0 = null; last = i; continue;
     }
+    if (cum[i] - cum[last] < 12) continue; // tronçons de 12 m : on ignore les petits zigzags du réseau
+    const cap = capT3(pts[last].x, pts[last].z, pts[i].x, pts[i].z);
+    if (cap0 != null) {
+      const delta = Math.atan2(Math.sin(cap - cap0), Math.cos(cap - cap0)), prev = out[out.length - 1];
+      if (Math.abs(delta) > .85 && !(prev && cum[last] - cum[prev.i] < 15)) out.push({i: last, txt: delta > 0 ? 'Tournez à gauche' : 'Tournez à droite', ic: delta > 0 ? '↰' : '↱'});
+    }
+    cap0 = cap; last = i;
   }
-  return [...out];
-};
-// Suit une branche depuis i en passant par j, tout droit, jusqu'à ~min mètres ou au prochain carrefour
-function brancheT3(i, j, min) {
-  const N = T3.data.nav.nodes, ch = [i, j];
-  let prev = i, cur = j, d = Math.hypot(N[j][0] - N[i][0], N[j][1] - N[i][1]);
-  while (d < min && ch.length < 80) {
-    const vs = voisinsT3(cur).filter(k => k !== prev && !ch.includes(k)); if (!vs.length) break;
-    const dir = capT3(N[prev][0], N[prev][1], N[cur][0], N[cur][1]);
-    let best = vs[0], ba = Infinity;
-    for (const k of vs) { const a = ecartAng(capT3(N[cur][0], N[cur][1], N[k][0], N[k][1]), dir); if (a < ba) { ba = a; best = k; } }
-    // Carrefour : on s'y arrête pour choisir (sauf tout droit à moins de 2,5 m du départ) ; virage serré : arrêt
-    if ((vs.length > 1 && (d >= 2.5 || ba > .35)) || ba > 1.2) break;
-    d += Math.hypot(N[best][0] - N[cur][0], N[best][1] - N[cur][1]); ch.push(best); prev = cur; cur = best;
-  }
-  return ch;
+  if (via) out.push({i: via.i, txt: `Étape : ${via.nom}`, ic: ICONE(via.cat)});
+  out.sort((a, b) => a.i - b.i);
+  out.push({i: pts.length - 1, txt: `Arrivée : ${vers}`, ic: '◉'});
+  return {etapes: out, cum};
 }
-// Impasse : tout ce qu'on peut atteindre au-delà de j (sans repasser par i) reste à moins de 15 m de j — entrée de boutique, recoin…
-function impasseT3(i, j) {
-  const N = T3.data.nav.nodes, vu = new Set([i, j]), file = [j];
-  while (file.length && vu.size < 80) {
-    const u = file.shift();
-    if (Math.hypot(N[u][0] - N[j][0], N[u][1] - N[j][1]) > 15) return false;
-    for (const k of voisinsT3(u)) if (!vu.has(k)) { vu.add(k); file.push(k); }
-  }
-  return vu.size < 80;
-}
-// Directions possibles depuis le point courant (une flèche par couloir)
-function directionsT3(i = T3.node) {
-  const N = T3.data.nav.nodes, [x, z] = N[i], dirs = [];
-  for (const j of voisinsT3(i)) {
-    const ch = brancheT3(i, j, 5), q = N[ch[ch.length - 1]], a = capT3(x, z, q[0], q[1]);
-    const impasse = impasseT3(i, j);
-    if (Math.hypot(q[0] - x, q[1] - z) > .5 && !dirs.some(d => ecartAng(d.a, a) < .45)) dirs.push({a, j, impasse});
-  }
-  return dirs;
-}
-function flechesT3() {
-  for (const m of T3.fleches) T3.scene.remove(m);
-  T3.fleches = [];
-  if (!T3.balade || T3.anim || T3.node == null) return;
-  const [x, z] = T3.data.nav.nodes[T3.node], y = T3.niv[PA.term + PA.ord].y + T3_SOL + .08;
-  for (const d of directionsT3()) {
-    const m = new THREE.Mesh(T3.flecheGeo, T3.flecheMat), bord = new THREE.Mesh(T3.flecheGeo, T3.flecheBord);
-    bord.scale.set(1.25, 1, 1.25); bord.position.y = -.01; bord.renderOrder = 19; m.renderOrder = 20; m.add(bord);
-    m.position.set(x - Math.sin(d.a) * 3.2, y, z - Math.cos(d.a) * 3.2); m.rotation.y = d.a; m.userData = d;
-    T3.scene.add(m); T3.fleches.push(m);
-  }
-}
-// Avance dans la direction choisie jusqu'au prochain point d'arrêt (~10 m ou carrefour)
-function suivreT3(j, tourne = true) {
-  const N = T3.data.nav.nodes, ch = brancheT3(T3.node, j, 10), y = T3.cam.position.y;
-  T3.anim = {pts: ch.slice(1).map(k => new THREE.Vector3(N[k][0], y, N[k][1])), fin: ch[ch.length - 1], k: 0, tourne};
-  T3.yawCible = null; flechesT3();
-}
-// ↑ / ↓ : couloir le plus proche du regard (ou de l'arrière, en reculant sans se retourner)
-function pasT3(sens) {
-  if (!T3.balade || T3.anim) return;
-  const cap = T3.yaw + (sens < 0 ? Math.PI : 0);
-  // Couloir principal en priorité (jusqu'à 115° du regard) ; une impasse seulement si elle est bien en face
-  const dirs = directionsT3();
-  let best = null, ba = 2;
-  for (const d of dirs) { const e = ecartAng(d.a, cap); if (!d.impasse && e < ba) { ba = e; best = d; } }
-  if (!best || ba > 1.6) for (const d of dirs) { const e = ecartAng(d.a, cap); if (d.impasse && e < .35 && e < ba) { ba = e; best = d; } }
-  if (!best) return toast('Pas de passage dans cette direction · tournez-vous');
-  suivreT3(best.j, sens > 0);
-}
-function tournerT3(sens) { if (T3.balade) T3.yawCible = (T3.yawCible != null ? T3.yawCible : T3.yaw) + sens * Math.PI / 6; }
-// Toucher une flèche, ou un point du sol : on y va par les couloirs
-function toucherT3(e) {
-  if (T3.anim) return;
-  const r = T3.renderer.domElement.getBoundingClientRect(), nv = T3.niv[PA.term + PA.ord];
-  const ray = new THREE.Raycaster(); ray.setFromCamera({x: (e.clientX - r.left) / r.width * 2 - 1, y: -(e.clientY - r.top) / r.height * 2 + 1}, T3.cam);
-  const f = ray.intersectObjects(T3.fleches, false)[0];
-  if (f) return suivreT3(f.object.userData.j);
-  const hit = ray.intersectObjects(nv.plein.children).find(h => h.face && h.face.normal.y > .5);
-  if (!hit) return;
-  // Flèche la plus proche du point touché (à moins de 2,5 m), sinon trajet par le cheminement jusqu'au point
-  const fl = T3.fleches.find(m => m.position.distanceTo(new THREE.Vector3(hit.point.x, m.position.y, hit.point.z)) < 2.5);
-  if (fl) return suivreT3(fl.userData.j);
-  const N = T3.data.nav.nodes, fi = T3.data.nav.floors.indexOf(nv.id), b = noeudProcheT3(hit.point.x, hit.point.z, fi);
-  const ch = b >= 0 && b !== T3.node && cheminT3(T3.node, b);
-  if (!ch) return;
-  const meme = ch.slice(0, (ch.findIndex(k => N[k][2] !== fi) + 1 || ch.length + 1) - 1); // reste au même niveau
-  if (meme.length < 2) return;
-  const y = T3.cam.position.y;
-  T3.anim = {pts: meme.slice(1).map(k => new THREE.Vector3(N[k][0], y, N[k][1])), fin: meme[meme.length - 1], k: 0, tourne: true};
-  flechesT3();
-}
-// Place le visiteur sur le cheminement le plus proche de sa position, au niveau affiché
-function placerBaladeT3(nv) {
-  const p = T3.cam.position, N = T3.data.nav.nodes, fi = T3.data.nav.floors.indexOf(nv.id);
-  // Point de départ : le plus proche situé dans un vrai couloir (au moins deux directions qui ne sont pas des impasses)
-  const proches = N.map(([x, z, f], i) => [i, f === fi ? (x - p.x) ** 2 + (z - p.z) ** 2 : Infinity]).sort((a, b) => a[1] - b[1]).slice(0, 60);
-  const bon = proches.find(([i, d]) => d < Infinity && directionsT3(i).filter(q => !q.impasse).length >= 2);
-  T3.node = bon ? bon[0] : noeudProcheT3(p.x, p.z, fi); T3.anim = null;
-  const [x, z] = N[T3.node];
-  T3.cam.position.set(x, nv.y + T3_SOL + T3_YEUX, z);
-  // Sur l'itinéraire : regarde vers la suite du trajet ; sinon vers le couloir le plus proche du regard
-  if (T3.route && T3.route.term === PA.term) {
-    const pts = T3.route.pts.filter(q => Math.abs(q.y - .9 - nv.y) < 1);
-    let i = 0, bd = Infinity; pts.forEach((q, k) => { const d = (q.x - x) ** 2 + (q.z - z) ** 2; if (d < bd) { bd = d; i = k; } });
-    let k = i, cumul = 0;
-    while (k < pts.length - 1 && cumul < 15) { cumul += Math.hypot(pts[k + 1].x - pts[k].x, pts[k + 1].z - pts[k].z); k++; }
-    const nx = pts[k];
-    if (nx && (nx.x - x) ** 2 + (nx.z - z) ** 2 > 1) T3.yaw = capT3(x, z, nx.x, nx.z);
-  } else {
-    let best = null, ba = Infinity;
-    for (const d of directionsT3()) { const e = ecartAng(d.a, T3.yaw) + (d.impasse ? 10 : 0); if (e < ba) { ba = e; best = d; } }
-    if (best) T3.yaw = best.a;
-  }
-  flechesT3();
-}
-function entrerBaladeT3() {
-  T3.balade = true; T3.ctl.enabled = false; T3.pitch = -.1; T3.t = 0; T3.yawCible = null;
-  T3.cam.fov = 70; T3.cam.updateProjectionMatrix();
-  // Regarde dans la direction de la caméra précédente
-  const d = T3.ctl.target.clone().sub(T3.cam.position); T3.yaw = Math.atan2(-d.x, -d.z);
-  // Départ : début de l'itinéraire à ce niveau s'il y en a un, sinon là où l'on regardait
-  const nv = T3.niv[PA.term + PA.ord], r = T3.route && T3.route.term === PA.term && T3.route.pts.find(q => Math.abs(q.y - .9 - nv.y) < 1);
-  const ici = GEO.etat === 'ok' && GEO.term === PA.term && GEO.ord === PA.ord && new THREE.Vector3(GEO.x, 0, GEO.z);
-  T3.cam.position.copy(ici || r || T3.ctl.target);
-  document.getElementById('t3Walk').hidden = false;
-  afficherT3(false);
-}
-function quitterBaladeT3() {
-  T3.balade = false; T3.ctl.enabled = true; T3.anim = null; T3.yawCible = null; flechesT3();
-  T3.cam.fov = 45; T3.cam.updateProjectionMatrix();
-  const p = T3.cam.position, ahead = new THREE.Vector3(p.x - Math.sin(T3.yaw) * 30, T3.niv[PA.term + PA.ord].y, p.z - Math.cos(T3.yaw) * 30);
-  T3.ctl.target.copy(ahead); T3.cam.position.set(p.x + Math.sin(T3.yaw) * 60, ahead.y + 80, p.z + Math.cos(T3.yaw) * 60);
-  document.getElementById('t3Walk').hidden = true;
-  afficherT3(false);
-}
-/* ---------- Géolocalisation : « Vous êtes ici » et guidage pas à pas ----------
-   Le GPS ne donne pas l'étage : on considère le niveau d'entrée (niveau 1) au départ, puis le niveau suit le guidage.
+
+/* ---------- Géolocalisation : « Vous êtes ici », guidage pas à pas et recalcul de l'itinéraire ----------
+   API de géolocalisation du navigateur (gratuite : GPS + Wi-Fi du téléphone). Elle ne donne pas l'étage : on part du
+   niveau d'entrée (niveau 1), puis le niveau suit le guidage. La position est « recalée » sur le couloir le plus proche.
    Hors de l'aéroport (démo), on propose de simuler sa position à une entrée de terminal. */
 const GEO = {etat: 'off', x: 0, z: 0, term: 'T1', ord: 1, prec: 0, simu: false, watch: null, proposee: false};
 const GEO_SIMU = [
@@ -2117,13 +2089,20 @@ function recevoirPosition(p, premiere) {
   if (nouveau) {
     // Terminal le plus proche, niveau d'entrée
     const N = T3.data.nav.nodes, floors = T3.data.nav.floors;
-    let best = 0, bd = Infinity; N.forEach(([nx, nz, f], i) => { const d = (nx - x) ** 2 + (nz - z) ** 2; if (d < bd) { bd = d; best = i; } });
+    let best = 0, bd = Infinity; N.forEach(([nx, nz], i) => { const d = (nx - x) ** 2 + (nz - z) ** 2; if (d < bd) { bd = d; best = i; } });
     GEO.term = floors[N[best][2]].includes('terminal2') ? 'T2' : 'T1'; GEO.ord = 1;
     GEO.watch = navigator.geolocation.watchPosition(q => recevoirPosition(q, false), () => {}, {enableHighAccuracy: true, maximumAge: 5000});
     PA.term = GEO.term; PA.ord = GEO.ord; PA.vue = '3d';
     toast('Position trouvée · vous êtes au ' + (GEO.term === 'T1' ? 'Terminal 1' : 'Terminal 2'));
     renderPlanAeroport();
-  } else majPositionT3();
+  } else { majPositionT3(); recalculerSiEcartT3(); piedT3(); }
+}
+// Hors du trajet (plus de 25 m) : on recalcule l'itinéraire depuis votre position (au plus toutes les 10 s)
+function recalculerSiEcartT3() {
+  const r = T3.route; if (!r || !T3.routeDef || performance.now() - (T3.routeCalc || 0) < 10000) return;
+  const q = posGeo(), y = t3Y(GEO.ord) + .9;
+  const ecart = Math.min(...r.pts.filter(p => Math.abs(p.y - y) < 1).map(p => Math.hypot(p.x - q.x, p.z - q.z)));
+  if (ecart > 25 && calculerRouteT3(T3.routeDef)) { labelsT3(); toast('Itinéraire recalculé depuis votre position'); }
 }
 function proposerSimulation(raison) {
   openSheet(`<h3>Position pour la démo</h3><div class="sub">${raison}</div>
@@ -2142,8 +2121,7 @@ function simulerPosition(i) {
     if (GEO.watch != null) navigator.geolocation.clearWatch(GEO.watch);
     Object.assign(GEO, {etat: 'ok', simu: true, x, z, term: s.term, ord: 1, prec: 5, watch: null});
     PA.term = s.term; PA.ord = 1; PA.vue = '3d';
-    if (T3.route) effacerRouteT3();
-    if (T3.renderer && T3.balade) { T3.cam.position.set(x, 0, z); }
+    if (T3.routeDef && T3.renderer) calculerRouteT3(T3.routeDef); // l'itinéraire part maintenant de votre position
     renderPlanAeroport();
     toast(`Position simulée · ${s.nom}`);
   });
@@ -2151,9 +2129,17 @@ function simulerPosition(i) {
 function couperPosition() {
   if (GEO.watch != null) navigator.geolocation.clearWatch(GEO.watch);
   Object.assign(GEO, {etat: 'off', simu: false, watch: null});
+  if (T3.routeDef && T3.renderer) calculerRouteT3(T3.routeDef);
   majPositionT3(); renderPlanAeroport(); toast('Localisation coupée');
 }
-// Point bleu « Vous êtes ici » (vue du dessus) et son étiquette
+// Position affichée : recalée sur le couloir le plus proche (à moins de 20 m), comme les GPS sur les routes
+function posGeo() {
+  if (GEO.simu || !T3.data) return {x: GEO.x, z: GEO.z};
+  const n = T3.data.terminaux.find(t => t.id === GEO.term).niveaux.find(q => q.ord === GEO.ord), i = noeudProcheT3(GEO.x, GEO.z, T3.data.nav.floors.indexOf(n.id));
+  const [nx, nz] = T3.data.nav.nodes[i];
+  return Math.hypot(nx - GEO.x, nz - GEO.z) < 20 ? {x: nx, z: nz} : {x: GEO.x, z: GEO.z};
+}
+// Point bleu « Vous êtes ici » et son étiquette
 function majPositionT3() {
   if (!T3.renderer) return;
   if (!T3.moi) {
@@ -2163,55 +2149,28 @@ function majPositionT3() {
     g.add(halo, m(new THREE.CircleGeometry(2.1, 32), '#ffffff', {opacity: 1}), m(new THREE.CircleGeometry(1.5, 32), '#2F7BF6', {opacity: 1}));
     g.userData.halo = halo; T3.moi = g; T3.scene.add(g);
   }
-  const ok = GEO.etat === 'ok' && GEO.term === PA.term && !T3.balade;
+  const ok = GEO.etat === 'ok' && GEO.term === PA.term, q = posGeo();
   T3.moi.visible = ok;
-  if (ok) {
-    T3.moi.position.set(GEO.x, t3Y(GEO.ord) + T3_SOL + .3, GEO.z);
-    const r = Math.max(4, Math.min(30, GEO.prec || 5)); T3.moi.userData.halo.scale.set(r, r, 1);
-  }
-  if (T3.moiLbl) T3.moiLbl.v.set(GEO.x, t3Y(GEO.ord) + 3.5, GEO.z);
+  if (ok) { T3.moi.position.set(q.x, eclate(t3Y(GEO.ord)) + T3_SOL + .3, q.z); const r = Math.max(4, Math.min(30, GEO.prec || 5)); T3.moi.userData.halo.scale.set(r, r, 1); }
+  if (T3.moiLbl) T3.moiLbl.v.set(q.x, t3Y(GEO.ord) + 3.5, q.z);
 }
 // Point de départ des itinéraires : votre position si elle est connue, sinon le hall d'enregistrement du terminal
 function departT3(termId) {
   const d = T3.data, floors = d.nav.floors;
   if (GEO.etat === 'ok') {
-    const n = d.terminaux.find(t => t.id === GEO.term).niveaux.find(q => q.ord === GEO.ord);
-    return {node: noeudProcheT3(GEO.x, GEO.z, floors.indexOf(n.id)), txt: 'votre position'};
+    const n = d.terminaux.find(t => t.id === GEO.term).niveaux.find(q => q.ord === GEO.ord), q = posGeo();
+    return {node: noeudProcheT3(q.x, q.z, floors.indexOf(n.id)), txt: 'votre position'};
   }
   const n1 = d.terminaux.find(t => t.id === termId).niveaux[0], cks = d.pois.filter(q => q.cat === 'checkin' && q.f === n1.id);
   const cx = cks.reduce((a, q) => a + q.xz[0], 0) / (cks.length || 1), cz = cks.reduce((a, q) => a + q.xz[1], 0) / (cks.length || 1);
   return {node: noeudProcheT3(cx, cz, floors.indexOf(n1.id)), txt: 'l’enregistrement'};
 }
-// Instructions de l'itinéraire : changements de niveau et virages marqués
-function etapesT3(pts, vers) {
-  const cum = [0], out = [];
-  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].z - pts[i - 1].z));
-  const ordDe = y => Math.round((y - .9) / T3.data.nivH) + 1;
-  let cap0 = null, last = 0;
-  for (let i = 1; i < pts.length; i++) {
-    if (Math.abs(pts[i].y - pts[i - 1].y) > 1) {
-      const o = ordDe(pts[i].y);
-      out.push({i: i - 1, txt: `${pts[i].y > pts[i - 1].y ? 'Montez' : 'Descendez'} au niveau ${o}`, ic: pts[i].y > pts[i - 1].y ? '⇡' : '⇣'});
-      cap0 = null; last = i; continue;
-    }
-    if (cum[i] - cum[last] < 12) continue; // tronçons de 12 m : on ignore les petits zigzags du réseau
-    const cap = capT3(pts[last].x, pts[last].z, pts[i].x, pts[i].z);
-    if (cap0 != null) {
-      const delta = Math.atan2(Math.sin(cap - cap0), Math.cos(cap - cap0));
-      const prev = out[out.length - 1];
-      if (Math.abs(delta) > .85 && !(prev && cum[last] - cum[prev.i] < 15)) out.push({i: last, txt: delta > 0 ? 'Tournez à gauche' : 'Tournez à droite', ic: delta > 0 ? '↰' : '↱'});
-    }
-    cap0 = cap; last = i;
-  }
-  out.push({i: pts.length - 1, txt: `Arrivée : ${vers}`, ic: '◉'});
-  return {etapes: out, cum};
-}
 // Où en est-on sur l'itinéraire ? (point du trajet le plus proche, au niveau où l'on est)
 function progressionT3() {
   const r = T3.route; if (!r || GEO.etat !== 'ok') return null;
-  const y = t3Y(GEO.ord) + .9;
+  const y = t3Y(GEO.ord) + .9, q = posGeo();
   let k = 0, bd = Infinity;
-  r.pts.forEach((q, i) => { if (Math.abs(q.y - y) > 1) return; const d = (q.x - GEO.x) ** 2 + (q.z - GEO.z) ** 2; if (d < bd) { bd = d; k = i; } });
+  r.pts.forEach((p, i) => { if (Math.abs(p.y - y) > 1) return; const d = (p.x - q.x) ** 2 + (p.z - q.z) ** 2; if (d < bd) { bd = d; k = i; } });
   const e = r.etapes.find(s => s.i >= k && r.cum[s.i] - r.cum[k] > 2) || r.etapes[r.etapes.length - 1];
   return {k, e, dans: Math.round(r.cum[e.i] - r.cum[k]), reste: Math.round(r.cum[r.cum.length - 1] - r.cum[k])};
 }
@@ -2221,98 +2180,125 @@ function avancerDemoGeo() {
   let j = pr.k; while (j < r.pts.length - 1 && r.cum[j] - r.cum[pr.k] < 30) j++;
   // on s'arrête juste avant un changement de niveau, puis on le franchit au pas suivant
   for (let i = pr.k + 1; i <= j; i++) if (Math.abs(r.pts[i].y - r.pts[i - 1].y) > 1) { j = i - 1 === pr.k ? i : i - 1; break; }
-  const q = r.pts[j], ord = Math.round((q.y - .9) / T3.data.nivH) + 1;
+  const q = r.pts[j], ord = Math.round((q.y - .9) / T3_NIV) + 1;
   Object.assign(GEO, {x: q.x, z: q.z, ord});
-  if (ord !== PA.ord || r.term !== PA.term) { PA.term = r.term; PA.ord = ord; renderPlanAeroport(); }
-  else { majPositionT3(); if (T3.balade) placerBaladeT3(T3.niv[PA.term + PA.ord]); piedT3(); }
+  if (r.term !== PA.term || (PA.ord !== 0 && ord !== PA.ord)) { PA.term = r.term; PA.ord = ord; renderPlanAeroport(); }
+  else { majPositionT3(); labelsT3(); allerVersT3(new THREE.Vector3(q.x, t3Y(ord), q.z), 160); piedT3(); }
   if (j === r.pts.length - 1) toast(`Vous êtes arrivé : ${r.vers}`);
 }
 
-/* ---------- Rechercher un lieu (boutique, restaurant, porte, services…) et le montrer sur le plan ---------- */
+/* ---------- Lieux : catégories, recherche intelligente, fiche et itinéraire ---------- */
 const LIEUX_CAT = /^(shop|eat|relax|services|gate|restroom|security\.checkpoint|checkin|baggage\.claim|ticketing|transport\.taxi)/;
-const catLieu = c => c === 'gate' ? 'Porte' : c.startsWith('eat') ? 'Restaurant' : c.startsWith('shop') ? 'Boutique' : c.startsWith('restroom') ? 'Toilettes'
-  : c.startsWith('relax') ? 'Détente' : c.startsWith('security') ? 'Sûreté' : c === 'checkin' ? 'Enregistrement' : c.startsWith('baggage') ? 'Bagages' : 'Service';
+const catLieu = c => c === 'gate' ? 'Porte' : c.startsWith('eat.coffee') ? 'Café' : c.startsWith('eat') ? 'Restaurant' : c.startsWith('shop') ? 'Boutique' : c.startsWith('restroom') ? 'Toilettes'
+  : c === 'relax.lounge' ? 'Salon' : c.startsWith('relax') ? 'Détente' : c.startsWith('security') ? 'Sûreté' : c === 'checkin' ? 'Enregistrement' : c.startsWith('baggage') ? 'Bagages' : 'Service';
+// Menu de la vue du dessus
+const CATS = [
+  {id: 'resto', l: '🍴 Restaurants', f: p => p.cat === 'eat'},
+  {id: 'cafe', l: '☕ Cafés', f: p => (p.cat === 'eat.coffee' || (p.cat === 'eat' && /caf[ée]/i.test(p.kw || ''))) && !/distributeur/i.test(p.n)},
+  {id: 'duty', l: '🛍 Duty free', f: p => /duty free/i.test(p.n)},
+  {id: 'shop', l: '🛒 Boutiques', f: p => p.cat.startsWith('shop') && !/duty free|casiers|bag mobile/i.test(p.n)},
+  {id: 'wc', l: '🚻 Toilettes', f: p => p.cat.startsWith('restroom')},
+  {id: 'serv', l: 'ℹ️ Services', f: p => /^services\.(atm|bank|currencyexchange|information|firstaid|lostproperty|waterrefill|chargingstation|mothersroom)/.test(p.cat) || p.cat === 'relax.lounge'},
+];
+// Mots de la recherche : catégories, synonymes et spécialités (en plus des mots-clés et descriptions officiels)
+const TAGS_CAT = {'eat.coffee': 'café coffee boisson', eat: 'restaurant manger repas déjeuner dîner', shop: 'boutique magasin achat achats shopping',
+  restroom: 'toilettes wc', 'services.atm': 'argent retrait banque billets', 'services.currencyexchange': 'change devises argent', 'relax.lounge': 'salon lounge',
+  'services.firstaid': 'médecin infirmerie santé', 'services.chargingstation': 'chargeur recharger batterie téléphone', 'services.waterrefill': 'eau gourde'};
+const TAGS_NOM = {'Big Fernand': 'burger hamburger frites', 'Il Gusto Di Napoli': 'pizza pâtes italien', 'Pokawa': 'poké poke bowl sushi healthy', 'Paul': 'boulangerie viennoiserie croissant café',
+  'LaDurée': 'pâtisserie macarons dessert', 'Kiosque Ladurée': 'pâtisserie macarons dessert', 'Relay': 'presse journaux magazines livres tabac', 'Aelia Duty Free': 'duty free parfum alcool cosmétiques maquillage',
+  'iStore': 'électronique high-tech chargeur écouteurs', 'Maison Yellow Marseille': 'bar apéritif pastis', 'Fragonard': 'parfum vêtements souvenirs', 'Kiosque Provence': 'souvenirs provence',
+  'Marseille Market': 'épicerie snack', 'EXKI': 'salade healthy végétarien café', 'Starbucks': 'café coffee latte frappuccino'};
+const norm = t => (t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’']/g, ' ');
+const tagsCat = p => catLieu(p.cat) + ' ' + (TAGS_CAT[p.cat] || TAGS_CAT[p.cat.split('.')[0]] || '');
 function niveauDuPoi(p) { for (const t of T3.data.terminaux) for (const n of t.niveaux) if (n.id === p.f) return {term: t.id, ord: n.ord}; }
-function chargerDonneesT3() {
-  return T3.data ? Promise.resolve() : (T3.donnees || (T3.donnees = fetch('data/terminaux3d.json').then(r => { if (!r.ok) throw r; return r.json(); }).then(d => { T3.data = d; }).catch(e => { T3.donnees = null; throw e; })));
+// Lieux uniques (un même nom au même niveau = un seul résultat), le terminal affiché en premier
+function trierLieux(lieux) {
+  const vus = new Set(), res = [];
+  for (const p of lieux) { const k = nomLieu(p) + p.f; if (!vus.has(k)) { vus.add(k); res.push(p); } }
+  const nv = p => niveauDuPoi(p);
+  return res.sort((a, b) => (nv(a).term !== PA.term) - (nv(b).term !== PA.term) || (nv(a).ord !== PA.ord) - (nv(b).ord !== PA.ord));
+}
+function chercherLieux(q) {
+  const mots = norm(q).split(/\s+/).filter(m => m.length >= 2); if (!mots.length) return [];
+  const scores = [];
+  for (const p of T3.data.pois) {
+    if (!LIEUX_CAT.test(p.cat) || p.cat === 'eat.vending' || /distributeur automatique/i.test(p.n)) continue;
+    const nom = norm(nomLieu(p)), cat = norm(tagsCat(p)), tags = norm((TAGS_NOM[p.n] || '') + ' ' + (p.kw || '')), desc = norm(p.desc);
+    // nom > type de lieu (un « café » est d'abord un café) > spécialités et mots-clés > description
+    let s = 0;
+    for (const m of mots) s += nom.includes(m) ? 3 : cat.includes(m) ? 2.5 : tags.includes(m) ? 2 : desc.includes(m) ? 1 : -9;
+    if (s > 0) scores.push([s, p]);
+  }
+  const top = scores.sort((a, b) => b[0] - a[0]); const best = top.length ? top[0][0] : 0;
+  return trierLieux(top.filter(([s]) => s >= Math.min(best, 2)).map(([, p]) => p)).slice(0, 15);
+}
+function afficherResultats(res, titre) {
+  const box = document.getElementById('paRes');
+  box.innerHTML = (titre ? `<p class="pa-res-t">${titre}</p>` : '') + (res.length ? res.map(p => { const nv = niveauDuPoi(p);
+    return `<button data-lieu="${p.id}"><span class="ic">${ICONE(p.cat)}</span><b>${nomLieu(p)}</b><span>${nv.term} · niv. ${nv.ord}${p.apres ? ' · après sûreté' : ''}</span></button>`; }).join('')
+    : '<p class="fine" style="padding:10px 12px;margin:0">Aucun lieu trouvé</p>');
+  box.hidden = false;
+  T3.resultats = res; if (T3.renderer && PA.vue === '3d') labelsT3();
 }
 function rechercherLieux(q) {
-  const box = document.getElementById('paRes');
-  q = q.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  if (q.length < 2) { box.hidden = true; return; }
+  PA.cat = null; document.querySelectorAll('#paCats button').forEach(b => b.classList.remove('on'));
+  if (norm(q).trim().length < 2) { document.getElementById('paRes').hidden = true; T3.resultats = []; if (T3.renderer) labelsT3(); return; }
+  chargerDonneesT3().then(() => afficherResultats(chercherLieux(q)));
+}
+function choisirCategorie(id) {
+  const c = CATS.find(x => x.id === id);
+  if (PA.cat === id) { PA.cat = null; T3.resultats = []; document.getElementById('paRes').hidden = true; renderPlanAeroport(); return; }
+  PA.cat = id; document.getElementById('paQ').value = '';
   chargerDonneesT3().then(() => {
-    const vus = new Set(), res = [];
-    for (const p of T3.data.pois) {
-      if (!LIEUX_CAT.test(p.cat)) continue;
-      const nom = p.cat === 'gate' ? nomPorte(p.n) : p.n, cle = nom + p.f;
-      const txt = (nom + ' ' + catLieu(p.cat)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      if (!txt.includes(q) || vus.has(cle)) continue;
-      vus.add(cle); res.push(p); if (res.length >= 12) break;
-    }
-    box.innerHTML = res.length ? res.map(p => { const nv = niveauDuPoi(p); return `<button data-lieu="${p.id}">${p.cat === 'gate' ? nomPorte(p.n) : p.n}<span>${catLieu(p.cat)} · ${nv.term} · niv. ${nv.ord}${p.apres ? ' · après sûreté' : ''}</span></button>`; }).join('')
-      : '<p class="fine" style="padding:10px 12px;margin:0">Aucun lieu trouvé</p>';
-    box.hidden = false;
+    renderCats();
+    afficherResultats(trierLieux(T3.data.pois.filter(c.f)), `${c.l} · ${PA.term === 'T1' ? 'Terminal 1' : 'Terminal 2'} en premier`);
   });
+}
+function renderCats() {
+  document.getElementById('paCats').innerHTML = CATS.map(c => `<button data-pacat="${c.id}" class="${PA.cat === c.id ? 'on' : ''}">${c.l}</button>`).join('');
 }
 function choisirLieu(id) {
   const p = T3.data.pois.find(q => q.id === id), nv = niveauDuPoi(p);
-  document.getElementById('paRes').hidden = true; document.getElementById('paQ').value = p.cat === 'gate' ? nomPorte(p.n) : p.n; document.getElementById('paQ').blur();
-  PA.term = nv.term; PA.ord = nv.ord;
+  document.getElementById('paRes').hidden = true; document.getElementById('paQ').blur();
+  PA.term = nv.term; if (PA.ord !== 0) PA.ord = nv.ord;
   if (PA.vue !== '3d') { // plan officiel 2D : centré sur le lieu, au bon niveau
     const [lat0, lng0] = T3.data.origine, kx = 111320 * Math.cos(lat0 * Math.PI / 180), kz = 110574;
     const t = TERMINAUX.find(x => x.id === PA.term), f = document.getElementById('paFrame');
-    renderPlanAeroport();
+    PA.ord = nv.ord; renderPlanAeroport();
     const url = urlPlanTerminal(Object.assign({}, t, {lat: lat0 - p.xz[1] / kz, lng: lng0 + p.xz[0] / kx, zoom: 19.3}), PA.ord);
     f.dataset.url = url; f.src = url;
     return;
   }
   if (!T3.renderer) { T3.ouvrirSur = {poi: p}; return renderPlanAeroport(); }
-  if (T3.balade) quitterBaladeT3();
-  renderPlanAeroport(); montrerLieuT3(p);
+  montrerLieuT3(p);
 }
-// Met le lieu en évidence (épingle violette) et cadre la caméra dessus
+// Met le lieu en évidence (épingle) et déplace la vue dessus
 function montrerLieuT3(p) {
-  const nv = T3.niv[PA.term + PA.ord]; if (!nv) return;
-  T3.lieu = p;
-  if (T3.balade) quitterBaladeT3(); else afficherT3(false);
-  const c = new THREE.Vector3(p.xz[0], nv.y, p.xz[1]);
-  T3.ctl.target.copy(c); T3.cam.position.set(c.x - 25, nv.y + 55, c.z + 45); T3.ctl.update();
-  piedT3();
+  const nv = niveauDuPoi(p);
+  T3.lieu = p; PA.term = nv.term; if (PA.ord !== 0) PA.ord = nv.ord;
+  renderPlanAeroport(false);
+  allerVersT3(new THREE.Vector3(p.xz[0], t3Y(nv.ord), p.xz[1]), 90);
 }
-// Itinéraire depuis l'enregistrement (ou depuis votre position pendant la visite) jusqu'au lieu choisi
-function routeVersLieuT3() {
-  const p = T3.lieu; if (!p) return;
-  const d = T3.data, floors = d.nav.floors, nv = niveauDuPoi(p), dep = departT3(nv.term);
-  const ch = cheminT3(dep.node, noeudProcheT3(p.xz[0], p.xz[1], floors.indexOf(p.f)));
-  if (!ch) return toast('Itinéraire indisponible pour ce lieu');
-  tracerRouteT3(ch, nv.term, p.cat === 'gate' ? nomPorte(p.n) : p.n, dep.txt);
-  // Avec la position : on affiche le niveau où l'on est, pour commencer le trajet
-  if (GEO.etat === 'ok') { PA.term = GEO.term; PA.ord = GEO.ord; }
-  renderPlanAeroport();
-}
+const fmtHoraires = h => h && h.replace(/^Mo-Su\s*/i, 'Tous les jours ').replace(/lastFlight/i, 'dernier vol').replace(/(\d{2}:\d{2})-/g, '$1 – ');
 function guideT3() {
   const pr = progressionT3(); if (!pr) return '';
   return `<div class="guide"><i>${pr.e.ic}</i><div><b>${pr.dans > 3 && pr.e.ic !== '◉' ? `Dans ${pr.dans} m · ` : ''}${pr.e.txt}</b><span>${pr.reste < 5 ? 'Vous y êtes' : `Encore ${pr.reste} m · ${Math.max(1, Math.round(pr.reste / 75))} min à pied`}${GEO.simu ? ' · position simulée' : ''}</span></div></div>
     ${GEO.simu ? '<button class="fswitch" id="geoAvance" style="margin:0 0 8px">Démo : j’avance de 30 m</button>' : ''}`;
 }
 function piedT3() {
-  const f = document.getElementById('t3Foot'), v = vol(), r = T3.route; f.hidden = false;
-  const routeBtn = r ? '<button class="btn-line" id="t3RouteOff">Masquer l’itinéraire</button>' : `<button class="btn-line" id="t3Route">${porteConnue() ? 'Itinéraire vers ma porte' : 'Ma porte : pas encore annoncée'}</button>`;
-  const nomT = PA.term === 'T1' ? 'Terminal 1' : 'Terminal 2', niv = TERMINAUX.find(t => t.id === PA.term).niveaux.find(([o]) => o === PA.ord);
-  if (T3.balade) {
-    f.innerHTML = `${guideT3()}<p><b>${nomT} · Niveau ${PA.ord}</b> <span>· ${niv[1]}${r ? ` · suivez la ligne violette jusqu’à ${/^Porte/.test(r.vers) ? 'la ' : ''}${r.vers}` : ''}</span></p>
-      <div class="t3-btns">${routeBtn}<button class="btn-violet" id="t3Quit" style="margin:0">Vue du dessus</button></div>`;
+  const f = document.getElementById('t3Foot'), v = vol(), r = T3.route, nomT = PA.term === 'T1' ? 'Terminal 1' : 'Terminal 2'; f.hidden = false;
+  if (T3.lieu) {
+    const p = T3.lieu, nl = niveauDuPoi(p), infos = [fmtHoraires(p.h), p.pres && `près de : ${p.pres.replace(/^Porte d['’]Embarquement/i, 'Porte')}`].filter(Boolean).join(' · ');
+    const ajout = porteConnue() && p.cat !== 'gate' && nomLieu(p) !== v.porte;
+    f.innerHTML = `${guideT3()}<p><b>${ICONE(p.cat)} ${nomLieu(p)}</b> <span>· ${catLieu(p.cat)} · ${nl.term === 'T1' ? 'Terminal 1' : 'Terminal 2'}, niveau ${nl.ord}${p.cat === 'gate' ? '' : ` · ${p.apres ? 'après' : 'avant'} la sûreté`}</span></p>
+      ${infos || p.desc ? `<p class="t3-info">${infos}${infos && p.desc ? '<br>' : ''}${p.desc ? p.desc.slice(0, 140) + (p.desc.length > 140 ? '…' : '') : ''}</p>` : ''}
+      <div class="t3-btns"><button class="btn-violet" id="t3LieuRoute" style="margin:0">Y aller</button>${ajout ? `<button class="btn-line" id="t3LieuVia">Ajouter au trajet vers la ${v.porte}</button>` : ''}</div>
+      <button class="fswitch" id="t3LieuFermer" style="display:block;margin:8px auto 0">Fermer</button>`;
     return;
   }
-  if (T3.lieu && !r) {
-    const p = T3.lieu, nl = niveauDuPoi(p);
-    f.innerHTML = `<p><b>${p.cat === 'gate' ? nomPorte(p.n) : p.n}</b> <span>· ${catLieu(p.cat)} · ${nl.term === 'T1' ? 'Terminal 1' : 'Terminal 2'}, niveau ${nl.ord}${p.apres ? ' · après le contrôle sûreté' : ' · avant le contrôle sûreté'}</span></p>
-      <div class="t3-btns"><button class="btn-line" id="t3LieuRoute">Y aller</button><button class="btn-violet" id="t3Balade" style="margin:0">Visiter à pied</button></div>`;
-    return;
-  }
-  f.innerHTML = `${guideT3()}<p>${r ? `<b>Itinéraire vers ${/^Porte/.test(r.vers) ? 'la ' : ''}${r.vers}</b> <span>· ≈ ${r.m} m · ${Math.max(1, Math.round(r.m / 75))} min à pied depuis ${r.depuis}</span>`
-      : v.term === PA.term ? `<b>Votre vol ${v.ville}</b> <span>· ${porteConnue() || 'porte pas encore annoncée'}, ${v.term}</span>` : `<b>${nomT}</b> <span>· votre vol part du ${v.term}</span>`}</p>
-    <div class="t3-btns">${routeBtn}<button class="btn-violet" id="t3Balade" style="margin:0">Visiter à pied</button></div>`;
+  f.innerHTML = `${guideT3()}<p>${r ? `<b>Itinéraire vers ${/^Porte/.test(r.vers) ? 'la ' : ''}${r.vers}</b> <span>${r.via ? `· via ${r.via.nom} ` : ''}· ≈ ${r.m} m · ${Math.max(1, Math.round(r.m / 75))} min à pied depuis ${r.depuis}</span>`
+      : v.term === PA.term ? `<b>Votre vol ${v.ville}</b> <span>· ${porteConnue() || 'porte pas encore annoncée'}, ${v.term} · touchez le plan ou une boutique</span>` : `<b>${nomT}</b> <span>· votre vol part du ${v.term}</span>`}</p>
+    <div class="t3-btns">${r ? '<button class="btn-line" id="t3RouteOff">Masquer l’itinéraire</button>' : `<button class="btn-violet" id="t3Route" style="margin:0">${porteConnue() ? 'Itinéraire vers ma porte' : 'Ma porte : pas encore annoncée'}</button>`}</div>`;
 }
 // Carte officielle de l'aéroport, centrée sur le parking choisi (même plan que plans.marseille.aeroport.fr)
 const PLAN_OFFICIEL = 'https://plans.marseille.aeroport.fr/';
@@ -2713,29 +2699,29 @@ document.getElementById('app').addEventListener('click', e => {
   else if (t.id === 'pk3dBtn') { const pk = pkDe(club.pk.parking); openPlan3D({mode: 'choose', vue: 'parking', pk, sel: club.pk.place, niv: club.pk.place ? club.pk.place.niv : 0}); }
   else if (t.id === 'passPk3d' && club.parking) { const pk = pkDe(club.parking.id); openPlan3D({mode: 'view', vue: 'parking', pk, niv: club.parking.place.niv}); }
   else if (t.dataset.plus === 'Plans') openPlanAeroport();
-  else if (t.id === 'paClose') { if (T3.balade) quitterBaladeT3(); closePlanAeroport(); }
+  else if (t.id === 'paClose') closePlanAeroport();
+  else if (t.id === 'paPlein') basculerPleinEcran();
   else if (t.dataset.paterm) choisirTerminal(t.dataset.paterm);
   else if (t.dataset.paord) { PA.ord = +t.dataset.paord; renderPlanAeroport(); }
-  else if (t.id === 'paMode') { if (T3.balade) quitterBaladeT3(); PA.vue = PA.vue === '3d' ? 'plan' : '3d'; renderPlanAeroport(); }
+  else if (t.id === 'paMode') { PA.vue = PA.vue === '3d' ? 'plan' : '3d'; renderPlanAeroport(); }
+  else if (t.dataset.pacat) choisirCategorie(t.dataset.pacat);
+  else if (t.id === 't3LieuVia') routeVersLieuT3(true);
+  else if (t.id === 't3LieuFermer') { T3.lieu = null; labelsT3(); piedT3(); }
   else if (t.id === 't3Route') routeVersPorteT3();
-  else if (t.id === 't3RouteOff') { effacerRouteT3(); T3.lieu = null; labelsT3(); piedT3(); }
-  else if (t.id === 't3Balade') entrerBaladeT3();
-  else if (t.id === 't3Quit') quitterBaladeT3();
-  else if (t.dataset.t3pas) pasT3(+t.dataset.t3pas);
+  else if (t.id === 't3RouteOff') { effacerRouteT3(); T3.routeDef = null; labelsT3(); piedT3(); }
   else if (t.dataset.lieu) choisirLieu(t.dataset.lieu);
   else if (t.id === 'geoOui') demanderPosition();
   else if (t.id === 'geoNon') closeSheet();
   else if (t.dataset.geosim) simulerPosition(+t.dataset.geosim);
   else if (t.id === 'geoAvance') avancerDemoGeo();
-  else if (t.id === 'paGeo') { if (GEO.etat === 'ok') couperPosition(); else proposerLocalisation(); }
-  else if (t.id === 't3LieuRoute') routeVersLieuT3();
+  else if (t.id === 'paGeo' || t.id === 'paGeo2') { if (GEO.etat === 'ok') couperPosition(); else proposerLocalisation(); }
+  else if (t.id === 't3LieuRoute') routeVersLieuT3(false);
   else if (t.id === 'billetImport') openImportBillet();
   else if (t.id === 'billetScan' || t.id === 'billetFichier') choisirBilletDemo();
   else if (t.dataset.billet) importerBillet(+t.dataset.billet);
   else if (t.id === 'billetAnnonce') annoncerPorte();
   else if (t.id === 'billetPlan' || t.id === 'bannerPorte') { document.getElementById('pushbanner').classList.remove('on'); voirPorteSurPlan(); }
   else if (t.id === 'billetSuppr') { club.billet = null; renderAll(); toast('Billet retiré'); }
-  else if (t.dataset.t3tour) tournerT3(+t.dataset.t3tour);
   else if (t.id === 'paParkings' || t.id === 'planPkBtn') openPlan3D({mode: club.parking ? 'view' : 'explore'});
   else if (t.id === 'p3Close') { const m = V.mode; closePlan3D(); if (m === 'choose') openParking(); else if (m === 'view' && club.parking) openPassParking(); }
   else if (t.id === 'p3Site' || t.id === 'p3Site2') { V.vue = 'site'; render3D(true); }
