@@ -356,6 +356,14 @@ nav.tabbar .on .ic-f{display:block}
 .pa-res[hidden]{display:none}
 .pa-res button{display:flex;justify-content:space-between;gap:10px;width:100%;padding:10px 12px;border-bottom:1px solid var(--sep-clair);text-align:left;font-size:14px;color:var(--navy)}
 .pa-res button span{font-size:11.5px;color:var(--gris-statut);white-space:nowrap}
+.gate-row{display:flex;gap:8px;align-items:stretch;margin:10px 0 4px}.gate-row .gate{flex:1;margin:0}
+.go-gate{flex-shrink:0;width:96px;border-radius:10px;background:var(--violet-2);color:#fff;font-weight:700;font-size:12.5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:6px}
+.cmd{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--sep-clair);text-align:left}
+.cmd-ic{font-size:22px;width:30px;text-align:center}.cmd-tx{flex:1;min-width:0}.cmd-tx b{display:block;font-size:14.5px;color:var(--navy)}.cmd-tx span{font-size:12px;color:var(--gris-statut)}
+.cmd-r{text-align:right}.cmd-r b{display:block;font-size:14px;color:var(--navy)}.cmd-r button{margin-top:4px;font-size:12.5px;font-weight:700;color:var(--violet-2)}
+.pa-emb{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--navy);background:#F1ECFE;border-radius:8px;padding:7px 10px}
+.pa-emb.ouv{background:#E6F4EA;color:#1D6B3A}.pa-emb.fin{background:#FDECEA;color:#B3261E}.pa-emb[hidden]{display:none}
+.planamp.plein .pa-emb{box-shadow:0 2px 6px rgba(25,38,64,.18)}
 .home-club{background:linear-gradient(135deg,#6032EC 0%,#4A1FD0 100%);border-radius:12px;padding:16px 18px;color:#fff}
 .home-club .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
 .home-club .cols button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0}
@@ -539,12 +547,10 @@ button.p3-lbl{font-family:inherit;cursor:pointer}
   <!-- ================= COMPTE ================= -->
   <section class="screen" id="compte">
     <div class="header"><h1>Compte</h1></div>
-    <div class="store">AMP Store <span data-ic="down"></span></div>
     <div class="storehead">
       <div class="wordmark">Aéroport<br>Marseille Provence</div>
       <div class="icons">
-        <span data-ic="user-s"></span>
-        <span style="position:relative"><span data-ic="bag-s"></span><span class="badge">0</span></span>
+        <button id="cartBtn" aria-label="Mon panier" style="position:relative;display:flex"><span data-ic="bag-s"></span><span class="badge" id="cartBadge">0</span></button>
         <span data-ic="burger"></span>
       </div>
     </div>
@@ -567,12 +573,11 @@ button.p3-lbl{font-family:inherit;cursor:pointer}
       <div class="acc-tabs" id="accTabs">
         <button data-acc="cmd"><span data-ic="t-bag"></span>Commandes</button>
         <button data-acc="info"><span data-ic="t-user"></span>Mes infos</button>
-        <button data-acc="adr"><span data-ic="t-map"></span>Adresses</button>
         <button data-acc="club" class="on"><span data-ic="t-star"></span>Club AMP<i class="newdot" id="newdot"></i></button>
       </div>
       <div class="acc-pane" id="pane-cmd">
         <h2 class="acc-h">Commandes en cours</h2>
-        <div class="infobox"><span data-ic="info"></span><span><b>Info</b>&nbsp; Il n'y a aucun résultat à afficher</span></div>
+        <div id="cmdListe"></div>
         <h2 class="acc-h">Commandes passées</h2>
         <div class="infobox"><span data-ic="info"></span><span><b>Info</b>&nbsp; Il n'y a aucun résultat à afficher</span></div>
       </div>
@@ -584,13 +589,8 @@ button.p3-lbl{font-family:inherit;cursor:pointer}
         <div class="field"><label>Nom</label>Martin</div>
         <div class="field ro"><label>Adresse email</label>camille.martin@exemple.fr</div>
         <div class="field"><label>Téléphone</label>+33 6 00 00 00 00</div>
+        <div class="field"><label>Adresse</label>1 rue de l'Exemple, 13000 Marseille, France</div>
         <p class="demo-note">Données fictives · champs non modifiables dans le prototype</p>
-      </div>
-      <div class="acc-pane" id="pane-adr">
-        <h2 class="acc-h">Carnet d'adresses</h2>
-        <div class="addr"><b>Camille Martin</b><p>1 rue de l'Exemple<br>13000 Marseille<br>FRANCE</p></div>
-        <span class="btn-out"><span data-ic="pencil"></span>Modifier</span>
-        <p class="demo-note">Adresse fictive</p>
       </div>
       <div class="acc-pane on" id="pane-club"></div>
     </div>
@@ -623,7 +623,7 @@ button.p3-lbl{font-family:inherit;cursor:pointer}
       <div class="p3-tt"><b>Plan de l’aéroport</b><span>Plan officiel · plans.marseille.aeroport.fr</span></div>
       <button id="paParkings" class="p3-sitebtn">Parkings 3D</button>
     </div>
-    <div class="pa-sel"><div class="pa-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#6C7580" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="paQ" placeholder="Rechercher une boutique, un restaurant, une porte…" autocomplete="off"><div class="pa-res" id="paRes" hidden></div></div><div class="pa-cats" id="paCats"></div><div class="pa-row"><button class="pa-geo" id="paGeo" aria-label="Me localiser"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2F7BF6" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg></button><div class="pa-terms" id="paTerms"></div><button class="pa-mode" id="paMode"></button></div><div class="pa-nivs" id="paNivs"></div></div>
+    <div class="pa-sel"><div class="pa-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#6C7580" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="paQ" placeholder="Rechercher une boutique, un restaurant, une porte…" autocomplete="off"><div class="pa-res" id="paRes" hidden></div></div><div class="pa-cats" id="paCats"></div><div class="pa-emb" id="paEmb" hidden></div><div class="pa-row"><button class="pa-geo" id="paGeo" aria-label="Me localiser"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2F7BF6" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg></button><div class="pa-terms" id="paTerms"></div><button class="pa-mode" id="paMode"></button></div><div class="pa-nivs" id="paNivs"></div></div>
     <div class="p3-stage" id="paStage">
       <button class="pa-plein" id="paPlein" aria-label="Plan en plein écran"></button>
       <div class="pa-flt" id="paFlt"></div>
@@ -859,25 +859,25 @@ const ACHATS_DEMO = [
 ];
 // Deux vols de démonstration : un au T1 (salon accessible), un au T2
 const VOLS_DEMO = [
-  {h: '14:05', ville: 'CASABLANCA', term: 'T1', porte: 'Porte 14', surete: 5, paf: 8, marche: 7, libre: 62, embarq: '13:35', emb: 65, retard: 0, regime: 'international',
+  {h: '14:05', ville: 'CASABLANCA', num: 'AT 571', code: 'CMN', term: 'T1', porte: 'Porte 14', surete: 5, paf: 8, marche: 7, libre: 62, embarq: '13:35', emb: 65, retard: 0, regime: 'international',
    offres: [
      ['bag', '-10 % sur la sélection Provence', 'Aelia Duty Free · membres Habitué', '3 min'],
      ['cup', 'Café offert pour une viennoiserie', 'Starbucks · T1', '2 min'],
      ['cup', 'Menu à -15 % avant 13 h', 'Big Fernand · T1', '4 min'],
    ]},
-  {h: '13:25', ville: 'RABAT', term: 'T2', porte: 'Porte B', surete: 6, paf: 5, marche: 5, libre: 44, embarq: '12:55', emb: 25, retard: 0, regime: 'international',
+  {h: '13:25', ville: 'RABAT', num: 'AT 563', code: 'RBA', term: 'T2', porte: 'Porte B', surete: 6, paf: 5, marche: 5, libre: 44, embarq: '12:55', emb: 25, retard: 0, regime: 'international',
    offres: [
      ['cup', 'Café offert pour un menu', 'La Cantine des Voyageurs · avant 12 h', '2 min'],
      ['bag', '-10 % sur la sélection Provence', 'Aelia Duty Free · membres Habitué', '4 min'],
      ['cup', 'Menu express prêt en 10 min', 'POKAWA · commande dans l’app', '3 min'],
    ]},
-  {h: '15:05', ville: 'PARIS CDG', term: 'T1', porte: 'Porte 42', surete: 5, paf: null, marche: 6, libre: 71, embarq: '14:40', emb: 130, retard: 0, regime: 'schengen',
+  {h: '15:05', ville: 'PARIS CDG', num: 'AF 7661', code: 'CDG', term: 'T1', porte: 'Porte 42', surete: 5, paf: null, marche: 6, libre: 71, embarq: '14:40', emb: 130, retard: 0, regime: 'schengen',
    offres: [
      ['bag', '-10 % sur la sélection Provence', 'Aelia Duty Free · membres Habitué', '3 min'],
      ['cup', 'Menu à -15 % avant 15 h', 'Pret A Manger · T1', '2 min'],
      ['bag', 'Presse et snacks : -10 % dès 15 €', 'Relay · T1', '1 min'],
    ]},
-  {h: '16:20', ville: 'ALGER', term: 'T1', porte: 'Porte 25', surete: 6, paf: 9, marche: 8, libre: 55, embarq: '15:50', emb: 80, retard: 0, regime: 'international',
+  {h: '16:20', ville: 'ALGER', num: 'AH 1053', code: 'ALG', term: 'T1', porte: 'Porte 25', surete: 6, paf: 9, marche: 8, libre: 55, embarq: '15:50', emb: 80, retard: 0, regime: 'international',
    offres: [
      ['cup', 'Café offert pour une viennoiserie', 'Starbucks · T1', '3 min'],
      ['bag', '-10 % sur la sélection Provence', 'Aelia Duty Free · membres Habitué', '2 min'],
@@ -902,11 +902,11 @@ const SALONS = [
 // L'intérieur (rangs × parRang places par niveau) est une maquette : le plan officiel ne détaille pas les places.
 // occ = taux d'occupation simulé ; min = minutes jusqu'au terminal depuis la sortie piétons
 const PARKING_OPTS = [
-  {id: 'p6', nom: 'P6', poi: '4000646', lat: 43.4404, lng: 5.2234, desc: 'Premium couvert, au plus près du T1', prixJour: 22, coul: '#192640', niveaux: 4, rangs: 4, parRang: 12, occ: .7, min: 2,
+  {id: 'p6', nom: 'P6', poi: '4000646', lat: 43.440171, lng: 5.224209, desc: 'Premium couvert, au plus près du T1', prixJour: 22, coul: '#192640', niveaux: 4, rangs: 4, parRang: 12, occ: .7, min: 2,
    sortie: 'Ascenseur · accès T1'},
   {id: 'p5', nom: 'P5', poi: '4000647', lat: 43.439784, lng: 5.226267, desc: 'Couvert · T1 3 min, T2 7 min', prixJour: 17, coul: '#3DA266', niveaux: 3, rangs: 4, parRang: 12, occ: .62, min: 3,
    sortie: 'Ascenseur · sortie P5/P6 → T1'},
-  {id: 'p4', nom: 'P4', poi: '4000990', lat: 43.442999, lng: 5.222939, desc: 'Plein air · T1 3 min, T2 4 min', prixJour: 13, coul: '#6032EC', niveaux: 1, rangs: 6, parRang: 14, occ: .55, min: 3,
+  {id: 'p4', nom: 'P4', poi: '4000990', lat: 43.443446, lng: 5.220946, desc: 'Plein air · T1 3 min, T2 4 min', prixJour: 13, coul: '#6032EC', niveaux: 1, rangs: 6, parRang: 14, occ: .55, min: 3,
    sortie: 'Accès piétons T1 / T2'},
   {id: 'p3', nom: 'P3', poi: '4000703', lat: 43.444208, lng: 5.22231, desc: 'Éco, face au T2 · T1 5 min, T2 2 min', prixJour: 9, coul: '#E0A030', niveaux: 1, rangs: 6, parRang: 18, occ: .5, min: 4,
    sortie: 'Accès piétons T2 / T1'},
@@ -958,7 +958,7 @@ const embarqEff = v => addMin(v.embarq, v.retard);
 // Heure actuelle de la démo ; minutes avant l'embarquement calculées depuis embarq (retard inclus)
 const HEURE_DEMO = '12:30';
 const hhmmMin = hhmm => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
-const embEff = v => (hhmmMin(embarqEff(v)) - hhmmMin(HEURE_DEMO) + 1440) % 1440;
+const embEff = v => (hhmmMin(embarqEff(v)) - hhmmMin(heureNow()) + 1440) % 1440;
 // Temps libre = avant l'embarquement − sûreté − frontières (0 si « — ») − marche, jamais négatif
 const libreEff = v => Math.max(0, embEff(v) - v.surete - (v.paf == null ? 0 : v.paf) - v.marche);
 const fmtDateCourt = dt => `${dt.getDate()} ${MOIS[dt.getMonth()].slice(0, 3)}.`;
@@ -1034,54 +1034,178 @@ function renderCompte() {
   document.getElementById('newdot').style.display = club.member ? 'none' : '';
   renderAll();
 }
-function renderAll() { renderClub(); renderReserver(); renderAccueilClub(); renderBillet(); }
-/* ---------- Billet importé : la porte s'affiche dès que la compagnie l'annonce ---------- */
-// Porte connue de l'app : celle du vol de démo, sauf si un billet importé attend encore l'annonce
-const porteConnue = () => !club.billet || club.billet.annoncee ? vol().porte : null;
-const annonceVers = v => addMin(v.embarq, -40); // annonce de la porte ≈ 40 min avant l'embarquement
+function renderAll() { renderClub(); renderReserver(); renderAccueilClub(); renderBillet(); renderCommandes(); }
+/* ---------- Panier / commandes : parking, salon et coupe-file réservés ---------- */
+function commandesClub() {
+  const c = [];
+  if (club.parking) { const k = club.parking; c.push({ic: '🅿️', t: `Parking ${k.nom} · place ${k.place.id}`, s: `${fmtDateHeure(k.debut)} → ${fmtDateHeure(k.fin)} · ${k.statut === 'sorti' ? 'sortie enregistrée' : 'réservé'}`, eur: k.eur, btn: 'passParkingBtn'}); }
+  if (club.salon && club.salon.statut !== 'rembourse') { const b = club.salon; c.push({ic: '🛋', t: salonDe(b.id).nom, s: `Entrée ${b.heure} · ${b.n} pers. · ${b.statut === 'utilise' ? 'utilisé' : 'réservé'}`, eur: b.eur, btn: 'passBtn'}); }
+  if (club.cf) { const f = club.cf; c.push({ic: '⚡', t: 'Coupe-file sûreté', s: `${f.n} pers. · ${f.statut === 'credite' ? 'utilisé' : 'réservé'}`, eur: f.eur, btn: 'passCF'}); }
+  return c;
+}
+const ligneCommande = o => `<div class="cmd"><span class="cmd-ic">${o.ic}</span><div class="cmd-tx"><b>${o.t}</b><span>${o.s}</span></div><div class="cmd-r"><b>${fmtEur(o.eur)}</b><button data-cmdpass="${o.btn}">Voir</button></div></div>`;
+function renderCommandes() {
+  const c = commandesClub(), el = document.getElementById('cmdListe'), badge = document.getElementById('cartBadge');
+  if (badge) badge.textContent = c.length;
+  if (el) el.innerHTML = c.length ? c.map(ligneCommande).join('')
+    : `<div class="infobox"><span><b>Info</b>&nbsp; Il n'y a aucun résultat à afficher</span></div>`;
+}
+function openPanier() {
+  const c = commandesClub(), total = c.reduce((a, o) => a + o.eur, 0);
+  openSheet(`<h3>Mon panier</h3><div class="sub">${c.length ? `${c.length} commande${c.length > 1 ? 's' : ''} · ${fmtEur(total)}` : 'Aucune commande pour le moment'}</div>
+    ${c.length ? c.map(ligneCommande).join('') : '<p class="fine" style="text-align:left">Réservez une place de parking, un salon ou un coupe-file : votre commande apparaîtra ici.</p><button class="btn-violet" data-go="reserver">Réserver</button>'}`);
+}
+/* ---------- Billet importé : pas de vol tant qu'aucun billet n'est importé ; la porte s'affiche dès l'import ----------
+   Le billet (photo, capture ou PDF) est lu sur le téléphone : code-barres IATA ou QR code, sinon le texte imprimé
+   (PDF : texte du document ; image : reconnaissance de caractères). La porte lue est vérifiée sur le plan officiel. */
+const porteConnue = () => club.billet ? vol().porte : null;
+const heureNow = () => { const d = new Date(); return club.billet ? `${pad2(d.getHours())}:${pad2(d.getMinutes())}` : HEURE_DEMO; };
+const fmtDuree = m => m >= 60 ? `${Math.floor(m / 60)} h ${pad2(m % 60)}` : `${m} min`;
+// Embarquement : ouverture à l'heure prévue (retard compris), fin 20 min avant le départ
+function etatEmbarquement(v) {
+  const now = hhmmMin(heureNow()), ecart = x => ((x - now + 1440 + 720) % 1440) - 720;
+  const a = ecart(hhmmMin(embarqEff(v))), b = ecart(hhmmMin(addMin(v.h, v.retard - 20)));
+  if (a > 0) return {txt: `Embarquement dans ${fmtDuree(a)}`, sub: `ouverture à ${embarqEff(v)}`, cls: 'att'};
+  if (b > 0) return {txt: `Embarquement en cours · se termine dans ${fmtDuree(b)}`, sub: `fin à ${addMin(v.h, v.retard - 20)}`, cls: 'ouv'};
+  return {txt: 'Embarquement terminé', sub: `départ ${addMin(v.h, v.retard)}`, cls: 'fin'};
+}
 function renderBillet() {
   const el = document.getElementById('accueilBillet'); if (!el) return;
   const b = club.billet, v = vol();
   if (!b) {
     el.innerHTML = `<div class="billet"><div class="bt"><b>Mon billet</b></div>
-      <p>Importez votre carte d’embarquement : on vous prévient quand votre porte est annoncée et on vous y guide sur le plan.</p>
+      <p>Importez votre carte d’embarquement : votre porte s’affiche et l’app vous y guide sur le plan.</p>
       <button class="btn-violet" id="billetImport" style="margin:0">Importer mon billet</button></div>`;
     return;
   }
-  el.innerHTML = `<div class="billet"><div class="bt"><b>${v.h} · ${v.ville}</b><span>${b.num} · ${v.term === 'T1' ? 'Terminal 1' : 'Terminal 2'}</span></div>
-    ${b.annoncee ? `<div class="gate"><b>${v.porte.replace(/^Porte /, '')}</b><span><b style="font:inherit;font-weight:700;color:var(--navy)">${v.porte}</b><br>Embarquement ${embarqEff(v)}</span></div>
-      <button class="btn-violet" id="billetPlan" style="margin:8px 0 0">Voir ma porte sur le plan</button>`
-    : `<div class="gate attente"><b>Porte à venir</b><span>Annonce prévue vers ${annonceVers(v)}<br>Nous vous prévenons dès qu’elle est affichée</span></div>
-      <button class="fswitch" id="billetAnnonce">Démo : la compagnie annonce la porte</button>`}
+  const e = etatEmbarquement(v);
+  el.innerHTML = `<div class="billet"><div class="bt"><b>${v.h} · ${v.ville}</b><span>${b.num}${b.siege ? ` · siège ${b.siege}` : ''}</span></div>
+    <div class="gate-row"><div class="gate"><b>${v.porte.replace(/^Porte /, '')}</b><span><b style="font:inherit;font-weight:700;color:var(--navy)">${v.porte}</b> · ${v.term === 'T1' ? 'Terminal 1' : 'Terminal 2'}<br>${e.txt}</span></div>
+      <button class="go-gate" id="billetPlan">${svg(P.plane, {color: '#fff', sw: 1.6, size: 22})}Aller à ma porte</button></div>
+    ${v.retard > 0 ? `<span class="st olive" style="display:inline-block;margin-top:8px">Retardé · départ ${addMin(v.h, v.retard)}</span>` : ''}
     <button class="fswitch" id="billetSuppr" style="display:block">Retirer ce billet</button></div>`;
 }
 function openImportBillet() {
-  openSheet(`<h3>Importer mon billet</h3><div class="sub">Carte d’embarquement papier, PDF ou Wallet</div>
-    <button class="imp" id="billetScan">${svg(P.qr, {color: '#6032EC', sw: 1.6, size: 26})}<div><b>Scanner le code-barres</b><span>Avec l’appareil photo</span></div></button>
-    <button class="imp" id="billetFichier">${svg(P.bag, {color: '#6032EC', sw: 1.6, size: 26})}<div><b>Depuis un PDF ou Apple Wallet</b><span>Fichier reçu par la compagnie</span></div></button>
-    <p class="fine">Le code-barres contient votre nom, le vol et le siège : rien d’autre n’est lu. Le billet reste sur votre téléphone et est supprimé après le vol.</p>`);
+  openSheet(`<h3>Importer mon billet</h3><div class="sub">Carte d’embarquement : photo, capture d’écran ou PDF</div>
+    <label class="imp">${svg(P.qr, {color: '#6032EC', sw: 1.6, size: 26})}<div><b>Prendre en photo le billet</b><span>Le code-barres ou le texte est lu</span></div>
+      <input type="file" accept="image/*" capture="environment" id="billetPhoto" hidden></label>
+    <label class="imp">${svg(P.bag, {color: '#6032EC', sw: 1.6, size: 26})}<div><b>Choisir un fichier</b><span>PDF, capture d’écran ou image du billet</span></div>
+      <input type="file" accept="image/*,application/pdf" id="billetFichierIn" hidden></label>
+    <button class="fswitch" id="billetDemo" style="display:block;margin:6px auto 0">Pas de billet sous la main ? Billets de démonstration</button>
+    <p class="fine">Le billet est lu sur votre téléphone : il n’est envoyé nulle part et il est supprimé après le vol.</p>`);
 }
-// Démo : le billet « lu » correspond à un des vols de démonstration
-function choisirBilletDemo() {
-  openSheet(`<h3>Billet détecté (démo)</h3><div class="sub">Choisissez le vol du billet</div>
-    ${VOLS_DEMO.map((v, i) => `<button class="imp" data-billet="${i}"><div><b>${v.h} · ${v.ville}</b><span>${v.term === 'T1' ? 'Terminal 1' : 'Terminal 2'} · porte annoncée vers ${annonceVers(v)}</span></div></button>`).join('')}`);
+function choisirBilletDemo(message) {
+  openSheet(`<h3>${message ? 'Billet non reconnu' : 'Billets de démonstration'}</h3><div class="sub">${message || 'Choisissez le vol du billet'}</div>
+    ${VOLS_DEMO.map((v, i) => `<button class="imp" data-billet="${i}"><div><b>${v.h} · ${v.ville}</b><span>${v.num} · ${v.term === 'T1' ? 'Terminal 1' : 'Terminal 2'} · ${v.porte}</span></div></button>`).join('')}`);
 }
-function importerBillet(i) {
+const LIBS_BILLET = {
+  jsqr: 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
+  pdf: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+  pdfw: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+  ocr: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',
+};
+const chargerScript = src => new Promise((ok, ko) => {
+  if (document.querySelector(`script[src="${src}"]`)) return ok();
+  const e = document.createElement('script'); e.src = src; e.onload = ok; e.onerror = ko; document.head.appendChild(e);
+});
+async function lireBillet(file) {
+  openSheet(`<h3>Lecture du billet…</h3><div class="sub" id="billetEtat">Recherche du code-barres</div>`);
+  const etat = t => { const e = document.getElementById('billetEtat'); if (e) e.textContent = t; };
+  const textes = []; let canvas, pdfTexte = false;
+  try {
+    await chargerDonneesT3(); // portes du plan officiel, pour vérifier la porte du billet
+    if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+      await chargerScript(LIBS_BILLET.pdf); pdfjsLib.GlobalWorkerOptions.workerSrc = LIBS_BILLET.pdfw;
+      const page = await (await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise).getPage(1);
+      const txt = (await page.getTextContent()).items.map(i => i.str).join(' '); textes.push(txt); pdfTexte = txt.trim().length > 20;
+      // PDF avec du texte (billet de compagnie) : lu directement, sans dessiner la page
+      const direct = analyserBillet(txt); if (direct.ok) return importerBillet(direct);
+      const vp = page.getViewport({scale: 2}); canvas = document.createElement('canvas'); canvas.width = vp.width; canvas.height = vp.height;
+      await page.render({canvasContext: canvas.getContext('2d'), viewport: vp}).promise;
+    } else {
+      const img = await createImageBitmap(file), k = Math.min(1, 1800 / Math.max(img.width, img.height));
+      canvas = document.createElement('canvas'); canvas.width = img.width * k; canvas.height = img.height * k;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
+    // Codes-barres : détecteur du téléphone (QR, PDF417, Aztec), sinon lecteur de QR code
+    if ('BarcodeDetector' in window) try {
+      const f = (await BarcodeDetector.getSupportedFormats()).filter(x => ['qr_code', 'pdf417', 'aztec', 'data_matrix'].includes(x));
+      if (f.length) for (const c of await new BarcodeDetector({formats: f}).detect(canvas)) textes.push(c.rawValue);
+    } catch (e) {}
+    try { await chargerScript(LIBS_BILLET.jsqr); const g = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height), q = jsQR(g.data, g.width, g.height); if (q) textes.push(q.data); } catch (e) {}
+    let info = analyserBillet(textes.join('\n'));
+    // Texte imprimé (image sans code lisible) : reconnaissance de caractères
+    if (!info.ok && !pdfTexte) {
+      etat('Lecture du texte du billet (quelques secondes)…');
+      await chargerScript(LIBS_BILLET.ocr);
+      const r = await Tesseract.recognize(canvas, 'fra+eng'); textes.push(r.data.text);
+      info = analyserBillet(textes.join('\n'));
+    }
+    if (info.ok) importerBillet(info);
+    else choisirBilletDemo('Nous n’avons pas trouvé le vol sur ce billet. Choisissez-le :');
+  } catch (e) { choisirBilletDemo('Lecture impossible (connexion nécessaire la première fois). Choisissez le vol :'); }
+}
+// Portes du plan officiel : « 14 », « 1B », « 41A », « B »…
+const portesPlan = () => T3.data.pois.filter(p => p.cat === 'gate').map(p => ({nom: nomPorte(p.n), p}));
+const SCHENGEN = /\b(CDG|ORY|PARIS|NCE|NICE|LYS|LYON|BOD|BORDEAUX|NTE|NANTES|LIL|LILLE|TLS|TOULOUSE|SXB|STRASBOURG|AJA|AJACCIO|BIA|BASTIA|BRU|BRUXELLES|AMS|AMSTERDAM|FRA|FRANCFORT|MAD|MADRID|BCN|BARCELONE|FCO|ROME|LIS|LISBONNE|GVA|GENEVE|ZRH|ZURICH|MUC|MUNICH|BER|BERLIN|VIE|VIENNE|ATH|ATHENES|CPH|COPENHAGUE)\b/;
+function analyserBillet(t) {
+  const T = (t || '').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, ''), info = {};
+  // Code-barres IATA (BCBP) : M1NOM/PRENOM  EPNR    MRSCMNAT 0571 ...
+  const b = T.match(/M1([A-Z\/ ]+?)\s+E([A-Z0-9]{5,7})\s+([A-Z]{3})([A-Z]{3})([A-Z0-9]{2})\s*(\d{3,4})[A-Z]?\s+(\d{3})([A-Z])(\d{3}[A-Z])/);
+  if (b) {
+    info.code = b[4]; info.num = `${b[5].trim()} ${+b[6]}`; info.siege = b[9].replace(/^0+/, '');
+    const [nom, pre] = b[1].trim().split('/'); if (pre) info.nom = `${pre[0]}${pre.slice(1).toLowerCase()} ${nom[0]}${nom.slice(1).toLowerCase()}`;
+  }
+  const compact = T.replace(/\s+/g, '');
+  // Vol connu : numéro, code de destination ou ville
+  info.i = VOLS_DEMO.findIndex(v => (info.num && v.num.replace(/\s/g, '') === info.num.replace(/\s/g, '')) || compact.includes(v.num.replace(/\s/g, '')));
+  if (info.i < 0) info.i = VOLS_DEMO.findIndex(v => (info.code || '') === v.code || new RegExp(`\\b${v.code}\\b`).test(T) || T.includes(v.ville));
+  if (!info.num) { const m = T.match(/(?:VOL|FLIGHT|FLT)\s*(?:N[O°]?\.?)?\s*[:\-]?\s*([A-Z0-9]{2})\s?(\d{2,4})\b/); if (m) info.num = `${m[1]} ${+m[2]}`; }
+  const g = T.match(/(?:PORTE|GATE)\s*(?:D'EMBARQUEMENT)?\s*[:\-#]?\s*([0-9]{1,2}[AB]?|[A-J])\b/);
+  if (g) { const ok = portesPlan().find(x => x.nom.toUpperCase() === `PORTE ${g[1]}`); if (ok) info.porte = ok.nom; else info.porteInconnue = g[1]; }
+  if (!info.siege) { const st = T.match(/(?:SIEGE|SEAT)\s*[:\-]?\s*(\d{1,2}[A-K])\b/); if (st) info.siege = st[1]; }
+  const h = T.match(/(?:DEPART|DEPARTURE|DEP\b\.?|HEURE DE DEPART)\s*[:\-]?\s*(\d{1,2})\s?[:H]\s?(\d{2})/);
+  if (h) info.h = `${pad2(+h[1])}:${h[2]}`;
+  const e = T.match(/(?:EMBARQUEMENT|BOARDING)(?:\s*TIME)?\s*[:\-]?\s*(\d{1,2})\s?[:H]\s?(\d{2})/);
+  if (e) info.emb = `${pad2(+e[1])}:${e[2]}`;
+  const d = T.match(/(?:DESTINATION|ARRIVEE|ARRIVAL|VERS|TO)\s*[:\-]\s*([A-Z][A-Z' \-]{2,24})/);
+  if (d) info.ville = d[1].trim().split(/\s{2,}|\s(?:VOL|FLIGHT|PORTE|GATE|DEPART)/)[0];
+  info.schengen = SCHENGEN.test(T);
+  info.ok = info.i >= 0 || !!(info.num && (info.ville || info.code || info.porte));
+  return info;
+}
+function importerBillet(info) {
+  const gate = info.porte && portesPlan().find(x => x.nom === info.porte), termPorte = gate && niveauDuPoi(gate.p).term;
+  let i = info.i;
+  if (i < 0) { // vol absent de la démo : créé à partir du billet
+    const ref = VOLS_DEMO[0], h = info.h || addMin(heureNow(), 120);
+    VOLS_DEMO.push(Object.assign({}, ref, {h, ville: info.ville || info.code || 'DESTINATION', num: info.num || 'VOL', code: info.code || '',
+      term: termPorte || 'T1', porte: info.porte || 'Porte 14', embarq: info.emb || addMin(h, -30), retard: 0,
+      regime: info.schengen ? 'schengen' : 'international', paf: info.schengen ? null : 8}));
+    i = VOLS_DEMO.length - 1;
+  } else {
+    const v = VOLS_DEMO[i];
+    if (info.porte) { v.porte = info.porte; v.term = termPorte || v.term; }
+    if (info.h) { v.h = info.h; v.embarq = info.emb || addMin(info.h, -30); } else if (info.emb) v.embarq = info.emb;
+  }
   const v = VOLS_DEMO[i];
-  club.vol = i; club.billet = {num: ['AT 571', 'AT 563', 'AF 7661', 'AH 1053'][i] || 'AMP 100', annoncee: false};
-  closeSheet(); renderAll(); toast(`Billet importé · ${v.ville} ${v.h}`);
+  club.vol = i; club.billet = {num: info.num || v.num, siege: info.siege, nom: info.nom};
+  closeSheet(); renderAll();
+  toast(`Billet importé · ${v.ville} ${v.h} · ${v.porte}${info.porteInconnue ? ` (porte ${info.porteInconnue} absente du plan)` : ''}`);
 }
-function annoncerPorte() {
-  if (!club.billet) return;
-  club.billet.annoncee = true; renderAll();
-  const v = vol();
-  showBanner(`<span><b>${v.porte} annoncée</b> pour votre vol ${v.ville} de ${v.h} · embarquement ${embarqEff(v)}</span><button id="bannerPorte">Voir</button>`);
-}
+function annoncerPorte() {}
 function voirPorteSurPlan() {
   const v = vol(), t = TERMINAUX.find(x => x.id === v.term);
   PA.term = v.term; PA.ord = ordDeparts(t); PA.vue = '3d'; T3.ouvrirSur = 'porte';
   openPlanAeroport();
   if (T3.renderer) { T3.ouvrirSur = null; routeVersPorteT3(); }
+}
+// Ouvre le plan 3D avec un itinéraire (salon, parking…) : def comme pour calculerRouteT3
+function ouvrirPlanAvecRoute(def, term) {
+  PA.term = term || PA.term || 'T1'; PA.vue = '3d'; T3.ouvrirSur = {route: def};
+  if (!PA.ord && PA.ord !== 0) PA.ord = 1;
+  openPlanAeroport();
+  if (T3.renderer) { T3.ouvrirSur = null; lancerRouteT3(def); }
 }
 function renderAccueilClub() {
   const el = document.getElementById('accueilClub'); if (!el) return;
@@ -1137,20 +1261,24 @@ function renderClub() {
       <div class="mbtns"><button class="qrbtn" id="qrBtn">${svg(P.qr, {color: '#6032EC', sw: 1.6, size: 22})}Ma carte</button><button class="ptsbtn" id="ptsBtn">Utiliser mes points</button></div>
     </div>
 
-    <div class="sec-t">Mon prochain vol <small>Suivi dans « Vols suivis »</small></div>
+    <div class="sec-t">Mon prochain vol</div>
+    ${club.billet ? `    <div class="sec-t">Mon prochain vol <small>Suivi dans « Vols suivis »</small></div>
     <div class="fcard">
       <div class="fl-t"><b>${vol().h} · ${vol().ville}</b><span>${vol().term} · ${vol().porte}</span></div>
       ${vol().retard > 0 ? `<span class="st olive" style="display:inline-block;margin-top:8px">Retardé · nouvel horaire ${embarqEff(vol())}</span>` : ''}
       <div class="waits"><div>Sûreté<b>${vol().surete} min</b></div><div>Frontières<b>${vol().paf == null ? '—' : vol().paf + ' min'}</b></div><div>Marche<b>${vol().marche} min</b></div></div>
       <div class="lnote" style="margin-top:2px;color:var(--navy)">Embarquement dans <b>${embEff(vol())} min</b></div>
       <div class="libre">Vous avez le temps : <b>${libreEff(vol())} min</b> à profiter du terminal</div>
+      <button class="go" id="billetPlan2">${svg(P.plane, {color: NAVY, sw: 1.5, size: 20})}Aller à ma porte</button>
       <button class="go" id="offresBtn">${svg(P.bag, {color: NAVY, sw: 1.5, size: 20})}Voir les offres près de la ${vol().porte.replace(/^Porte/, 'porte')}</button>
     </div>
     ${vol().retard >= SEUIL_RETARD_MIN ? retardSuggestion() : ''}
     <div class="sensor">${svg(P.sensor, {color: '#6C7580', sw: 1.4, size: 16})}Attentes mesurées par des capteurs de comptage anonymes</div>
     <button class="fswitch" id="notifDemo">Démo : notification</button>
     ${vol().retard > 0 ? '<button class="fswitch" id="annulRetardDemo">Démo : annuler le retard</button>' : '<button class="fswitch" id="retardDemo">Démo : mon vol a 1 h 20 de retard</button>'}
-    <button class="fswitch" id="volSwitch">Démo : changer de vol → ${VOLS_DEMO[(club.vol + 1) % VOLS_DEMO.length].ville} (${VOLS_DEMO[(club.vol + 1) % VOLS_DEMO.length].term})</button>
+` : `<div class="fcard"><div class="fl-t"><b>Aucun vol pour le moment</b></div>
+      <div class="lnote" style="margin:6px 0 10px;color:var(--navy)">Importez votre billet : votre porte, le temps avant l’embarquement et l’itinéraire s’affichent.</div>
+      <button class="go" id="billetImport2">${svg(P.qr, {color: NAVY, sw: 1.5, size: 20})}Importer mon billet</button></div>`}
 
     <div class="sec-t">Réserver</div>
     <button class="btn-line" id="goReserver">Réserver un salon ou un coupe-file</button>
@@ -1202,7 +1330,7 @@ function simulerAchat() {
 function salonCard() {
   const acc = salonVol(), b = club.salon;
   return SALONS.map(s => {
-    const p = pct(s.presents, s), [lv, c] = crowdLvl(p), ok = acc && acc.id === s.id;
+    const p = pct(s.presents, s), [lv, c] = crowdLvl(p), ok = !club.billet || (acc && acc.id === s.id);
     const active = b && b.id === s.id && b.statut !== 'rembourse';
     return `
     <div class="lcard" style="margin-bottom:12px">
@@ -1215,9 +1343,15 @@ function salonCard() {
       ${active ? `<div class="booked">${svg(P.check, {color: '#1D6B3A', sw: 2.2, size: 18})}${b.statut === 'utilise' ? 'Accès utilisé' : 'Réservé'} · ${b.heure} · ${b.n} pers.<button id="passBtn">Mon pass</button></div>`
         : ok ? `<button class="btn-violet" data-salon="${s.id}">Réserver · ${fmtEur(s.prix)} par personne</button>`
         : `<p class="lnote" style="margin-top:10px"><b>Non accessible avec votre vol</b> (${vol().term === 'T2' ? 'pas de salon au T2' : s.regime === 'schengen' ? 'réservé aux vols France et Schengen' : 'réservé aux vols hors Schengen'}).</p>`}
+      <button class="btn-line" data-allersalon="${s.id}" style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px">${svg(P.pin, {color: '#6032EC', sw: 1.6, size: 18})}Y aller · itinéraire sur le plan</button>
     </div>`; }).join('')
     + `<p class="fine" style="margin-top:0">Estimée à partir des entrées au salon et des vols au départ, sans donnée personnelle. Réservable même à la dernière minute, jusqu’à l’embarquement, dans la limite des places.</p>`
     + `<div class="sensor">${svg(P.sensor, {color: '#6C7580', sw: 1.4, size: 16})}Comptage anonyme, aucune donnée personnelle.</div>`;
+}
+// Salon sur le plan officiel → itinéraire depuis votre position (ou l'enregistrement)
+const SALON_POI = {ue: 'Salon - Vols Union Européenne', int: 'Salon - Vols internationaux'};
+function allerSalon(id) {
+  chargerDonneesT3().then(() => { const p = T3.data.pois.find(q => q.n === SALON_POI[id]); if (p) ouvrirPlanAvecRoute({dest: p}, 'T1'); }).catch(() => {});
 }
 function openSalon() {
   const r = club.rs, s = salonDe(r.salon);
@@ -1495,6 +1629,8 @@ function openPassParking() {
       <div class="bp-qr">${qrSvg(120)}<p class="memno">${fmtJours(c.jours)} · ${fmtEur(c.eur)}<br>${pk.sortie}</p></div>
     </div>
     <button class="btn-violet" id="passPk3d" style="gap:8px">${svg(P.cube, {color: '#fff', sw: 1.6, size: 20})}Voir ma place en 3D</button>
+    <button class="btn-line" id="pkVersPorte" style="margin-top:8px">${club.billet ? 'Itinéraire du parking à ma porte' : 'Itinéraire du parking au terminal'}</button>
+    <button class="btn-line" id="arrVersPk" style="margin-top:8px">Itinéraire des arrivées à ma voiture</button>
     <p class="fine">Présentez ce pass à l’entrée et à la sortie du parking.</p>
     ${c.statut === 'reserve' ? '<button class="btn-demo" id="demoSortiePk">Démo : sortie du parking</button>' : '<p class="fine" style="text-align:left"><b>Points crédités.</b></p>'}
     <button class="btn-line red" id="annulPk">Annuler (remboursement intégral)</button>`);
@@ -1622,7 +1758,7 @@ function renderPlanAeroport(cadrer = true) {
   document.getElementById('paTerms').innerHTML = TERMINAUX.map(x => `<button data-paterm="${x.id}" class="${x.id === PA.term ? 'on' : ''}">${x.nom}</button>`).join('');
   document.getElementById('paNivs').innerHTML = t.niveaux.map(([o, l]) => `<button data-paord="${o}" class="${o === PA.ord ? 'on' : ''}">Niveau ${o}<small>${l}</small></button>`).join('')
     + (en3d ? `<button data-paord="0" class="${PA.ord === 0 ? 'on' : ''}">${t.niveaux.length} niveaux<small>Vue d’ensemble</small></button>` : '');
-  renderCats();
+  renderCats(); renderEmbPlan();
   const plein = document.getElementById('planAmp').classList.contains('plein');
   document.getElementById('paPlein').innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#192640" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${plein ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5'}"/></svg>`;
   document.getElementById('paPlein').setAttribute('aria-label', plein ? 'Réduire le plan' : 'Plan en plein écran');
@@ -1656,6 +1792,14 @@ function choisirTerminal(id) {
   PA.term = id; if (PA.ord !== 0 && !t.niveaux.some(([o]) => o === PA.ord)) PA.ord = ordDeparts(t);
   renderPlanAeroport();
 }
+// Bandeau du plan : temps avant l'ouverture de l'embarquement, ou avant sa fin s'il est ouvert (billet importé)
+function renderEmbPlan() {
+  const el = document.getElementById('paEmb'); if (!el) return;
+  if (!club.billet) { el.hidden = true; return; }
+  const v = vol(), e = etatEmbarquement(v);
+  el.hidden = false; el.className = 'pa-emb ' + e.cls; el.innerHTML = `🛫 ${v.porte} · ${e.txt}`;
+}
+setInterval(() => { if (document.getElementById('planAmp').classList.contains('on')) renderEmbPlan(); renderBillet(); }, 30000);
 const closePlanAeroport = () => { if (document.getElementById('planAmp').classList.contains('plein')) basculerPleinEcran(); document.getElementById('planAmp').classList.remove('on'); arreterT3(); };
 // Plein écran : on masque tout sauf le plan ; on demande aussi le plein écran du navigateur quand il existe (Android, ordinateur)
 function basculerPleinEcran() {
@@ -1680,8 +1824,14 @@ const t3Y = ord => (ord - 1) * T3_NIV;
 const T3_ECLAT = 28, eclate = y => PA.ord === 0 ? y + Math.round(y / T3_NIV) * T3_ECLAT : y;
 const nomPorte = n => 'Porte ' + n.replace(/^porte\s+(d['’]embarquement\s+)?/i, '').trim();
 const nomLieu = p => p.cat === 'gate' ? nomPorte(p.n) : p.n;
+// Données du plan : chargées par un script (fonctionne aussi en ouvrant l'app directement depuis le fichier)
 function chargerDonneesT3() {
-  return T3.data ? Promise.resolve() : (T3.donnees || (T3.donnees = fetch('data/terminaux3d.json').then(r => { if (!r.ok) throw r; return r.json(); }).then(d => { T3.data = d; }).catch(e => { T3.donnees = null; throw e; })));
+  if (T3.data) return Promise.resolve();
+  return T3.donnees || (T3.donnees = new Promise((ok, ko) => {
+    if (window.T3_DATA) return ok();
+    const e = document.createElement('script'); e.src = 'data/terminaux3d.js'; e.onload = ok; e.onerror = ko; document.head.appendChild(e);
+  }).then(() => { if (!window.T3_DATA) throw new Error('données absentes'); T3.data = window.T3_DATA; })
+    .catch(e => { T3.donnees = null; toast('Plan indisponible : données introuvables (dossier data/)'); throw e; }));
 }
 function chargerT3() {
   return T3.chargement || (T3.chargement = Promise.all([loadThree(), chargerDonneesT3()]).then(() => initT3()).catch(e => { T3.chargement = null; throw e; }));
@@ -1809,7 +1959,11 @@ function construireContexteT3() {
   const dedans = p => { const c = p.reduce((a, [x, z]) => [a[0] + x / p.length, a[1] + z / p.length], [0, 0]); return emprises.some(b => b.containsPoint(new THREE.Vector3(c[0], 0, c[1]))); };
   const plat = {'basemap.runway': '#BFC4CC', 'basemap.road': '#CDD1D8', 'parking': '#D9DEE6'};
   const formes = [];
+  // Parkings à étages (P5, P6) : volume à la hauteur de leurs niveaux, là où le plan officiel les dessine
+  const etages = PARKING_OPTS.filter(o => o.niveaux > 1).map(o => ({o, xz: versXZ(o.lat, o.lng)}));
   for (const c of d.contexte) {
+    const pk = c.cat === 'parking' && etages.find(e => dansPoly(e.xz[0], e.xz[1], c.p));
+    if (pk) { formes.push({p: [c.p], h: pk.o.niveaux * 3.2, coul: '#C9CED8'}); continue; }
     if (c.cat === 'element.building') { if (!dedans(c.p)) formes.push({p: [c.p], h: 7, coul: '#D3D7DE'}); }
     else if (plat[c.cat]) formes.push({p: [c.p], h: .02, coul: plat[c.cat]});
   }
@@ -1823,8 +1977,8 @@ function afficherT3(cadrer = true) {
     chargerT3().then(() => {
       load.hidden = true; const o = T3.ouvrirSur; T3.ouvrirSur = null;
       afficherT3(true, true);
-      if (o === 'porte') routeVersPorteT3(); else if (o && o.poi) montrerLieuT3(o.poi);
-    }).catch(() => { load.textContent = 'Vue 3D indisponible : ouvrez l’app via http://localhost:8765.'; });
+      if (o === 'porte') routeVersPorteT3(); else if (o && o.poi) montrerLieuT3(o.poi); else if (o && o.route) lancerRouteT3(o.route);
+    }).catch(() => { load.textContent = 'Vue 3D indisponible : connexion Internet nécessaire la première fois (moteur 3D).'; });
     return;
   }
   load.hidden = true;
@@ -1886,7 +2040,7 @@ function toucherPlanT3(e) {
   allerVersT3(hit.point);
 }
 // Icônes des catégories (étiquettes et résultats)
-const ICONE = c => c.startsWith('eat.coffee') ? '☕' : c.startsWith('eat') ? '🍴' : c.startsWith('shop') ? '🛍' : c.startsWith('restroom') ? '🚻'
+const ICONE = c => c.startsWith('parking') ? '🅿️' : c.startsWith('eat.coffee') ? '☕' : c.startsWith('eat') ? '🍴' : c.startsWith('shop') ? '🛍' : c.startsWith('restroom') ? '🚻'
   : c === 'relax.lounge' ? '🛋' : c.startsWith('relax') ? '💺' : /^services\.(atm|bank)/.test(c) ? '🏧' : c.startsWith('services.currency') ? '💱'
   : c.startsWith('services') ? 'ℹ️' : c === 'security.checkpoint' ? '🛂' : c === 'checkin' || c.startsWith('baggage') ? '🧳' : c === 'gate' ? '🛫' : '📍';
 // Étiquettes : portes, contrôles, boutiques et restaurants (touchables), résultats, itinéraire, « Vous êtes ici »
@@ -1904,6 +2058,10 @@ function labelsT3() {
     if (!ids.has(p.f)) continue;
     let txt, cls, proche = 0;
     if (p.cat === 'gate') { txt = nomPorte(p.n); cls = txt === maPorte ? 'me' : 'tag'; if (cls === 'me') txt = `Votre porte · ${txt.slice(6)}`; }
+    else if (p.cat === 'parking') {
+      const mien = club.parking && PK_POI[club.parking.id] === p.n;
+      txt = mien ? `🅿️ Votre parking ${club.parking.nom} · ${club.parking.place.id}` : `🅿️ ${p.n.replace(/^Parking /, '')}`; cls = mien ? 'me' : 'tag';
+    }
     else if (tous) continue; // vue de tous les niveaux : seulement les portes et l'itinéraire
     else if (p.cat === 'security.checkpoint') { txt = '🛂 Contrôle sûreté'; cls = 'tag'; }
     else if (/^(shop|eat|relax\.lounge)/.test(p.cat) && p.cat !== 'eat.vending') { txt = `${ICONE(p.cat)} ${p.n}`; cls = 'mini'; proche = 230; }
@@ -1981,15 +2139,18 @@ function calculerRouteT3(def) {
   const d = T3.data, floors = d.nav.floors, v = vol(), noeud = p => noeudProcheT3(p.xz[0], p.xz[1], floors.indexOf(p.f));
   const cible = def.porte ? d.pois.find(p => p.cat === 'gate' && nomPorte(p.n) === v.porte) : def.dest;
   if (!cible) { toast('Itinéraire indisponible pour cette porte'); return false; }
-  const term = niveauDuPoi(cible).term, dep = departT3(term);
+  const term = niveauDuPoi(cible).term;
+  // Départ : imposé (parking, sortie d'avion…) sinon votre position ou le hall d'enregistrement
+  const dep = def.depart ? {node: noeud(def.depart), txt: def.departTxt} : departT3(term);
   let ch, via = null;
   if (def.via) {
     const a = cheminT3(dep.node, noeud(def.via)), b = a && cheminT3(noeud(def.via), noeud(cible));
-    if (a && b) { ch = a.concat(b.slice(1)); via = {i: a.length - 1, nom: nomLieu(def.via), cat: def.via.cat}; }
+    if (a && b) { ch = a.concat(b.slice(1)); via = {i: a.length - 1, nom: def.viaTxt || nomLieu(def.via), cat: def.via.cat}; }
   } else ch = cheminT3(dep.node, noeud(cible));
   if (!ch) { toast('Itinéraire indisponible'); return false; }
   T3.routeDef = def; T3.routeCalc = performance.now();
-  tracerRouteT3(ch, term, def.porte ? v.porte : nomLieu(cible), dep.txt, via);
+  // Le tracé va jusqu'au point exact de la porte (ou du lieu), et part du point exact du départ imposé
+  tracerRouteT3(ch, term, def.versTxt || (def.porte ? v.porte : nomLieu(cible)), dep.txt, via, {debut: def.depart, fin: cible});
   return true;
 }
 // Niveau à afficher pour un itinéraire : le vôtre si la position est connue, sinon tous les niveaux s'il en change
@@ -1998,21 +2159,63 @@ function niveauPourRouteT3() {
   const ys = new Set(T3.route.pts.map(q => Math.round(q.y))); return ys.size > 1 ? 0 : Math.round((T3.route.pts[0].y - .9) / T3_NIV) + 1;
 }
 function routeVersPorteT3() {
-  if (!porteConnue()) return toast(`Votre porte n’est pas encore annoncée (vers ${annonceVers(vol())})`);
-  if (!calculerRouteT3({porte: true})) return;
-  T3.lieu = null; T3.resultats = []; PA.term = vol().term; PA.ord = niveauPourRouteT3(); renderPlanAeroport();
+  if (!porteConnue()) { toast('Importez votre billet pour connaître votre porte'); return openImportBillet(); }
+  lancerRouteT3({porte: true});
+}
+// Calcule l'itinéraire et l'affiche (vue de tous les niveaux s'il change d'étage)
+function lancerRouteT3(def) {
+  if (!calculerRouteT3(def)) return;
+  T3.lieu = null; T3.resultats = []; PA.term = T3.route.term; PA.ord = niveauPourRouteT3(); renderPlanAeroport();
+}
+/* ---------- Parking ↔ terminal : le parking est placé à son emplacement réel sur le plan officiel ---------- */
+const PK_POI = {p3: 'Parking P3', p4: 'Parking P4', p5: 'Parking P5', p6: 'Parking P6'};
+const poiParking = id => T3.data.pois.find(p => p.cat === 'parking' && p.n === PK_POI[id]);
+// sens 'depart' : de votre place au parking jusqu'à votre porte (ou au hall d'enregistrement sans billet)
+// sens 'arrivee' : de la sortie de l'avion (niveau 3 Arrivées), par les bagages, jusqu'à votre parking
+function routeParkingT3(sens) {
+  if (!club.parking) return toast('Réservez d’abord une place de parking');
+  const go = () => {
+    const pk = club.parking, pp = poiParking(pk.id), place = `${pk.nom} · place ${pk.place.id}`;
+    if (!pp) return toast('Parking introuvable sur le plan');
+    let def;
+    if (sens === 'depart') {
+      def = club.billet ? {porte: true, depart: pp, departTxt: `votre place ${place}`}
+        : {dest: centreEnregistrement('T1'), versTxt: 'Hall d’enregistrement', depart: pp, departTxt: `votre place ${place}`};
+    } else {
+      const n3 = T3.data.terminaux[0].niveaux.find(n => n.ord === 3), porte = club.billet && T3.data.pois.find(p => p.cat === 'gate' && nomPorte(p.n) === vol().porte);
+      // Sortie de l'avion : au-dessus de votre porte (niveau 3), sinon au centre du niveau des arrivées
+      const fi = T3.data.nav.floors.indexOf(n3.id), ns = T3.data.nav.nodes.filter(q => q[2] === fi);
+      const ref = porte ? porte.xz : [ns.reduce((a, q) => a + q[0], 0) / ns.length, ns.reduce((a, q) => a + q[1], 0) / ns.length];
+      const [x, z] = T3.data.nav.nodes[noeudProcheT3(ref[0], ref[1], fi)];
+      const bag = T3.data.pois.filter(p => p.cat === 'baggage.claim' && p.f === T3.data.terminaux[0].niveaux[0].id)[0];
+      def = {dest: pp, versTxt: `votre voiture · ${place}`, depart: GEO.etat === 'ok' ? null : {xz: [x, z], f: n3.id}, departTxt: 'la sortie de l’avion (niveau 3)',
+        via: bag, viaTxt: 'Récupération des bagages', versParking: true};
+      if (!def.depart) delete def.depart;
+    }
+    ouvrirPlanAvecRoute(def, 'T1');
+  };
+  chargerDonneesT3().then(go).catch(() => {});
+}
+// Centre des comptoirs d'enregistrement du niveau 1 d'un terminal (pseudo-lieu)
+function centreEnregistrement(term) {
+  const n1 = T3.data.terminaux.find(t => t.id === term).niveaux[0], cks = T3.data.pois.filter(q => q.cat === 'checkin' && q.f === n1.id);
+  return {xz: [cks.reduce((a, q) => a + q.xz[0], 0) / cks.length, cks.reduce((a, q) => a + q.xz[1], 0) / cks.length], f: n1.id, cat: 'checkin', n: 'Hall d’enregistrement'};
 }
 function routeVersLieuT3(ajouterAuTrajet) {
   const p = T3.lieu; if (!p) return;
-  if (!calculerRouteT3(ajouterAuTrajet ? {porte: true, via: p} : {dest: p})) return;
-  T3.lieu = null; T3.resultats = []; PA.term = T3.route.term; PA.ord = niveauPourRouteT3(); renderPlanAeroport();
-  if (ajouterAuTrajet) toast(`${nomLieu(p)} ajouté à votre trajet vers la ${vol().porte}`);
+  // Ajouter au trajet : on garde le départ du trajet en cours (parking…) s'il y en a un
+  const base = ajouterAuTrajet && T3.routeDef && T3.routeDef.porte ? T3.routeDef : {porte: true};
+  lancerRouteT3(ajouterAuTrajet ? Object.assign({}, base, {via: p, viaTxt: null}) : {dest: p});
+  if (ajouterAuTrajet && T3.route) toast(`${nomLieu(p)} ajouté à votre trajet vers la ${vol().porte}`);
 }
-function tracerRouteT3(ch, term, vers, depuis, via) {
+function tracerRouteT3(ch, term, vers, depuis, via, bouts = {}) {
   const d = T3.data, floors = d.nav.floors;
   effacerRouteT3();
   const ordDe = f => d.terminaux.flatMap(t => t.niveaux).find(n => n.id === floors[f]).ord;
   const pts = ch.map(i => { const [x, z, f] = d.nav.nodes[i]; return new THREE.Vector3(x, t3Y(ordDe(f)) + .9, z); });
+  const pt = p => new THREE.Vector3(p.xz[0], t3Y(niveauDuPoi(p).ord) + .9, p.xz[1]);
+  if (bouts.fin && pts.length && pt(bouts.fin).distanceTo(pts[pts.length - 1]) > 1) pts.push(pt(bouts.fin));
+  if (bouts.debut && pts.length && pt(bouts.debut).distanceTo(pts[0]) > 1) { pts.unshift(pt(bouts.debut)); if (via) via.i++; }
   let m = 0; for (let i = 1; i < pts.length; i++) m += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].z - pts[i - 1].z);
   T3.route = Object.assign({term, m: Math.round(m), pts, vers, depuis, via}, etapesT3(pts, vers, via));
   tubeRouteT3();
@@ -2188,8 +2391,8 @@ function avancerDemoGeo() {
 }
 
 /* ---------- Lieux : catégories, recherche intelligente, fiche et itinéraire ---------- */
-const LIEUX_CAT = /^(shop|eat|relax|services|gate|restroom|security\.checkpoint|checkin|baggage\.claim|ticketing|transport\.taxi)/;
-const catLieu = c => c === 'gate' ? 'Porte' : c.startsWith('eat.coffee') ? 'Café' : c.startsWith('eat') ? 'Restaurant' : c.startsWith('shop') ? 'Boutique' : c.startsWith('restroom') ? 'Toilettes'
+const LIEUX_CAT = /^(shop|eat|relax|services|gate|restroom|security\.checkpoint|checkin|baggage\.claim|ticketing|transport\.taxi|parking)/;
+const catLieu = c => c === 'gate' ? 'Porte' : c.startsWith('parking') ? 'Parking' : c.startsWith('eat.coffee') ? 'Café' : c.startsWith('eat') ? 'Restaurant' : c.startsWith('shop') ? 'Boutique' : c.startsWith('restroom') ? 'Toilettes'
   : c === 'relax.lounge' ? 'Salon' : c.startsWith('relax') ? 'Détente' : c.startsWith('security') ? 'Sûreté' : c === 'checkin' ? 'Enregistrement' : c.startsWith('baggage') ? 'Bagages' : 'Service';
 // Menu de la vue du dessus
 const CATS = [
@@ -2297,8 +2500,11 @@ function piedT3() {
     return;
   }
   f.innerHTML = `${guideT3()}<p>${r ? `<b>Itinéraire vers ${/^Porte/.test(r.vers) ? 'la ' : ''}${r.vers}</b> <span>${r.via ? `· via ${r.via.nom} ` : ''}· ≈ ${r.m} m · ${Math.max(1, Math.round(r.m / 75))} min à pied depuis ${r.depuis}</span>`
-      : v.term === PA.term ? `<b>Votre vol ${v.ville}</b> <span>· ${porteConnue() || 'porte pas encore annoncée'}, ${v.term} · touchez le plan ou une boutique</span>` : `<b>${nomT}</b> <span>· votre vol part du ${v.term}</span>`}</p>
-    <div class="t3-btns">${r ? '<button class="btn-line" id="t3RouteOff">Masquer l’itinéraire</button>' : `<button class="btn-violet" id="t3Route" style="margin:0">${porteConnue() ? 'Itinéraire vers ma porte' : 'Ma porte : pas encore annoncée'}</button>`}</div>`;
+      : !club.billet ? `<b>${nomT}</b> <span>· importez votre billet pour voir votre porte · touchez le plan ou une boutique</span>`
+      : v.term === PA.term ? `<b>Votre vol ${v.ville}</b> <span>· ${v.porte}, ${v.term} · touchez le plan ou une boutique</span>` : `<b>${nomT}</b> <span>· votre vol part du ${v.term}</span>`}</p>
+    <div class="t3-btns">${r ? '<button class="btn-line" id="t3RouteOff">Masquer l’itinéraire</button>' + (T3.routeDef && T3.routeDef.versParking ? '<button class="btn-violet" id="t3VoirPlace" style="margin:0">Voir ma place</button>' : '')
+      : club.billet ? '<button class="btn-violet" id="t3Route" style="margin:0">Itinéraire vers ma porte</button>' : '<button class="btn-violet" id="billetImport" style="margin:0">Importer mon billet</button>'}</div>
+    ${!r && club.parking ? `<div class="t3-btns"><button class="btn-line" id="t3PkPorte">🅿️ Du parking ${club.billet ? 'à ma porte' : 'au terminal'}</button><button class="btn-line" id="t3ArrPk">🛬 Des arrivées à ma voiture</button></div>` : ''}`;
 }
 // Carte officielle de l'aéroport, centrée sur le parking choisi (même plan que plans.marseille.aeroport.fr)
 const PLAN_OFFICIEL = 'https://plans.marseille.aeroport.fr/';
@@ -2500,7 +2706,8 @@ function renderP3Chrome() {
         <div class="pc-tx"><b>Votre place ${pl.id} · ${nivCourt(p, pl.niv)}</b><span>${fmtDateHeure(c.debut)} → ${fmtDateHeure(c.fin)} · ≈ ${minutesTerm(p, pl)} min jusqu’au terminal</span></div></div>
       <ol class="p3-steps"><li>Entrée par la barrière${p.niveaux > 1 ? `, montez au ${nivLong(p, pl.niv).toLowerCase()}` : ''}</li>
         <li>Allée ${'ABCDEFGH'[s.r]}, place ${pl.id} (trajet violet)</li><li>À pied : ${p.sortie} (pointillés)</li></ol>
-      ${site ? '' : '<button class="btn-line" id="p3Site2" style="height:40px;margin-top:10px">Voir le parking sur le plan de l’aéroport</button>'}`;
+      ${site ? '' : '<button class="btn-line" id="p3Site2" style="height:40px;margin-top:10px">Voir le parking sur le plan de l’aéroport</button>'}
+      <button class="btn-violet" id="pkVersPorte" style="height:42px;margin-top:8px">Continuer jusqu’au terminal</button>`;
   } else {
     f.innerHTML = site ? `<p>Plan officiel de l’aéroport · choisissez un parking pour voir ses places en 3D</p><div class="p3-pks">${PARKING_OPTS.map(o => `<button data-p3pk="${o.id}" style="--c:${o.coul}"><b>${o.nom}</b><span>${libresTotal(o)} libres</span></button>`).join('')}</div>`
       : `<p>${libresTotal(pk)} places libres dans le ${pk.nom}</p><button class="btn-violet" id="p3Book">Réserver une place ici</button>`;
@@ -2636,6 +2843,7 @@ function quitter() {
 
 document.getElementById('app').addEventListener('input', e => { if (e.target.id === 'paQ') rechercherLieux(e.target.value); });
 document.getElementById('app').addEventListener('change', e => {
+  if ((e.target.id === 'billetPhoto' || e.target.id === 'billetFichierIn') && e.target.files[0]) lireBillet(e.target.files[0]);
   if (e.target.id === 'pkDebut' || e.target.id === 'pkFin') changerDatesPk(e.target.id, e.target.value);
 });
 document.getElementById('app').addEventListener('click', e => {
@@ -2665,11 +2873,6 @@ document.getElementById('app').addEventListener('click', e => {
     if (k === 'fid') { quitter(); return; }
     club.consent[k] = !club.consent[k]; t.querySelector('.sw').classList.toggle('on', club.consent[k]);
   }
-  else if (t.id === 'volSwitch') {
-    if (club.salon && club.salon.ptsId) annulerPtsAVenir(club.salon.ptsId);
-    if (club.cf && club.cf.ptsId) annulerPtsAVenir(club.cf.ptsId);
-    club.vol = (club.vol + 1) % VOLS_DEMO.length; club.salon = null; club.cf = null; renderAll();
-  } // démo : une réservation est liée à un vol
   else if (t.dataset.salon) { club.rs = {n: 1, bon: false, salon: t.dataset.salon}; openSalon(); }
   else if (t.dataset.np) { club.rs.n = Math.min(4, Math.max(1, club.rs.n + +t.dataset.np)); openSalon(); }
   else if (t.dataset.bonsalon) { club.rs.bon = !club.rs.bon; openSalon(); }
@@ -2716,11 +2919,16 @@ document.getElementById('app').addEventListener('click', e => {
   else if (t.id === 'geoAvance') avancerDemoGeo();
   else if (t.id === 'paGeo' || t.id === 'paGeo2') { if (GEO.etat === 'ok') couperPosition(); else proposerLocalisation(); }
   else if (t.id === 't3LieuRoute') routeVersLieuT3(false);
-  else if (t.id === 'billetImport') openImportBillet();
-  else if (t.id === 'billetScan' || t.id === 'billetFichier') choisirBilletDemo();
-  else if (t.dataset.billet) importerBillet(+t.dataset.billet);
-  else if (t.id === 'billetAnnonce') annoncerPorte();
-  else if (t.id === 'billetPlan' || t.id === 'bannerPorte') { document.getElementById('pushbanner').classList.remove('on'); voirPorteSurPlan(); }
+  else if (t.id === 'billetImport' || t.id === 'billetImport2') openImportBillet();
+  else if (t.id === 'billetDemo') choisirBilletDemo();
+  else if (t.id === 'cartBtn') openPanier();
+  else if (t.dataset.cmdpass) { closeSheet(); ({passParkingBtn: openPassParking, passBtn: openPass, passCF: openPassCF})[t.dataset.cmdpass](); }
+  else if (t.dataset.allersalon) allerSalon(t.dataset.allersalon);
+  else if (t.id === 'pkVersPorte' || t.id === 't3PkPorte') { if (document.getElementById('plan3d').classList.contains('on')) closePlan3D(); closeSheet(); routeParkingT3('depart'); }
+  else if (t.id === 'arrVersPk' || t.id === 't3ArrPk') { closeSheet(); routeParkingT3('arrivee'); }
+  else if (t.id === 't3VoirPlace' && club.parking) { const pk = pkDe(club.parking.id); openPlan3D({mode: 'view', vue: 'parking', pk, niv: club.parking.place.niv}); }
+  else if (t.dataset.billet) chargerDonneesT3().then(() => importerBillet({i: +t.dataset.billet})).catch(() => {});
+  else if (t.id === 'billetPlan' || t.id === 'billetPlan2' || t.id === 'bannerPorte') { document.getElementById('pushbanner').classList.remove('on'); voirPorteSurPlan(); }
   else if (t.id === 'billetSuppr') { club.billet = null; renderAll(); toast('Billet retiré'); }
   else if (t.id === 'paParkings' || t.id === 'planPkBtn') openPlan3D({mode: club.parking ? 'view' : 'explore'});
   else if (t.id === 'p3Close') { const m = V.mode; closePlan3D(); if (m === 'choose') openParking(); else if (m === 'view' && club.parking) openPassParking(); }
@@ -2779,7 +2987,7 @@ document.getElementById('app').addEventListener('click', e => {
 });
 renderCompte();
 renderReserver();
-renderAccueilClub(); renderBillet();
+renderAccueilClub(); renderBillet(); renderCommandes();
 
 paintIcons();
 const start = (location.hash || '').slice(1);
