@@ -145,6 +145,7 @@ nav.tabbar .on .ic-f{display:block}
 .st{flex-shrink:0;font-size:11.5px;font-weight:600;color:#fff;background:var(--gris-statut);border-radius:4px;padding:6px 12px}
 .st.olive{background:var(--olive)}.st.orange{background:#D9822B}.st.rouge{background:#C0392B}
 .live-l{color:#1D8A4C;font-weight:700;font-size:12px}
+.temps-p{font-size:12.5px;color:var(--navy);margin:8px 0 2px;line-height:1.45}.temps-p span{color:var(--gris-statut);font-size:11.5px}
 .suivi-d{color:#E0A030;font-size:16px;margin-left:-4px}
 .vol-det{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin:6px 0 16px;text-align:left}
 .vol-det span{display:block;font-size:11.5px;color:var(--gris-statut);text-transform:uppercase;letter-spacing:.3px}.vol-det b{font-size:14.5px;color:var(--navy)}
@@ -852,7 +853,7 @@ function majBilletLive() {
   if (!q) { v.live = null; return; }
   v.live = q; v.h = q.h; v.term = q.term || v.term;
   const g = q.porte && portesPlan().find(x => x.nom.toUpperCase() === `PORTE ${q.porte}`.toUpperCase());
-  if (g && g.nom !== v.porte) { v.porte = g.nom; v.term = niveauDuPoi(g.p).term; if (T3.route && T3.routeDef && T3.routeDef.porte) calculerRouteT3(T3.routeDef); }
+  if (g && g.nom !== v.porte) { v.porte = g.nom; v.porteHasard = false; v.term = niveauDuPoi(g.p).term; tempsParcours(v); if (T3.route && T3.routeDef && T3.routeDef.porte) calculerRouteT3(T3.routeDef); }
 }
 setInterval(() => chargerVolsLive(true).then(() => { renderVols(); renderSuivis(); renderBillet(); }), 120000);
 function renderVols() {
@@ -1033,7 +1034,9 @@ const embarqEff = v => addMin(v.embarq, v.retard);
 // Heure actuelle de la démo ; minutes avant l'embarquement calculées depuis embarq (retard inclus)
 const HEURE_DEMO = '12:30';
 const hhmmMin = hhmm => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
-const embEff = v => (hhmmMin(embarqEff(v)) - hhmmMin(heureNow()) + 1440) % 1440;
+// Minutes jusqu'à l'embarquement ; avec une date de vol (billet importé), calcul sur la date réelle
+const dateHeureVol = (v, hhmm) => { const [y, m, d] = v.date.split('-').map(Number), [h, mi] = hhmm.split(':').map(Number); return new Date(y, m - 1, d, h, mi); };
+const embEff = v => v.date && club.billet ? Math.max(0, Math.round((dateHeureVol(v, embarqEff(v)) - Date.now()) / 60000)) : (hhmmMin(embarqEff(v)) - hhmmMin(heureNow()) + 1440) % 1440;
 // Temps libre = avant l'embarquement − sûreté − frontières (0 si « — ») − marche, jamais négatif
 const libreEff = v => Math.max(0, embEff(v) - v.surete - (v.paf == null ? 0 : v.paf) - v.marche);
 const fmtDateCourt = dt => `${dt.getDate()} ${MOIS[dt.getMonth()].slice(0, 3)}.`;
@@ -1135,7 +1138,7 @@ function openPanier() {
    (PDF : texte du document ; image : reconnaissance de caractères). La porte lue est vérifiée sur le plan officiel. */
 const porteConnue = () => club.billet && vol().porte ? vol().porte : null;
 const heureNow = () => { const d = new Date(); return club.billet ? `${pad2(d.getHours())}:${pad2(d.getMinutes())}` : HEURE_DEMO; };
-const fmtDuree = m => m >= 60 ? `${Math.floor(m / 60)} h ${pad2(m % 60)}` : `${m} min`;
+const fmtDuree = m => m >= 1440 ? `${Math.floor(m / 1440)} j ${Math.floor(m % 1440 / 60)} h` : m >= 60 ? `${Math.floor(m / 60)} h ${pad2(m % 60)}` : `${m} min`;
 // Embarquement : ouverture à l'heure prévue (retard compris), fin 20 min avant le départ
 function etatEmbarquement(v) {
   // Statut officiel de l'aéroport en priorité (vol en direct), sinon estimation à partir des horaires
@@ -1144,7 +1147,9 @@ function etatEmbarquement(v) {
   if (/clos|termin/i.test(off)) return {txt: 'Embarquement clos', sub: 'annoncé par l’aéroport', cls: 'fin'};
   if (v.live && /d[ée]coll/i.test(v.live.statut || '')) return {txt: v.live.statut, sub: '', cls: 'fin'};
   const now = hhmmMin(heureNow()), ecart = x => ((x - now + 1440 + 720) % 1440) - 720;
-  const a = ecart(hhmmMin(embarqEff(v))), b = ecart(hhmmMin(addMin(v.h, v.retard - 20)));
+  // Vol daté (billet) : écarts réels en minutes, même s'il part demain ou plus tard
+  const a = v.date ? Math.round((dateHeureVol(v, embarqEff(v)) - Date.now()) / 60000) : ecart(hhmmMin(embarqEff(v)));
+  const b = v.date ? Math.round((dateHeureVol(v, addMin(v.h, v.retard - 20)) - Date.now()) / 60000) : ecart(hhmmMin(addMin(v.h, v.retard - 20)));
   if (a > 0) return {txt: `Embarquement dans ${fmtDuree(a)}`, sub: `ouverture à ${embarqEff(v)}`, cls: 'att'};
   if (b > 0) return {txt: `Embarquement en cours · se termine dans ${fmtDuree(b)}`, sub: `fin à ${addMin(v.h, v.retard - 20)}`, cls: 'ouv'};
   return {txt: 'Embarquement terminé', sub: `départ ${addMin(v.h, v.retard)}`, cls: 'fin'};
@@ -1159,10 +1164,12 @@ function renderBillet() {
     return;
   }
   const e = etatEmbarquement(v);
-  el.innerHTML = `<div class="billet"><div class="bt"><b>${v.h} · ${v.ville}</b><span>${b.num}${b.siege ? ` · siège ${b.siege}` : ''}</span></div>
+  const jour = v.date ? `${['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'][dateHeureVol(v, v.h).getDay()]} ${fmtDateCourt(dateHeureVol(v, v.h))} · ` : '';
+  el.innerHTML = `<div class="billet"><div class="bt"><b>${jour}${v.h} · ${v.ville}</b><span>${v.cie ? `${v.cie} · ` : ''}${b.num}${v.numFictif ? ' (n° fictif)' : ''}${b.siege ? ` · siège ${b.siege}` : ''}</span></div>
     <div class="gate-row"><div class="gate"><b>${v.porte ? v.porte.replace(/^Porte /, '') : '—'}</b><span><b style="font:inherit;font-weight:700;color:var(--navy)">${v.porte || 'Porte pas encore attribuée'}</b> · ${v.term === 'T1' ? 'Terminal 1' : 'Terminal 2'}<br>${e.txt}</span></div>
       <button class="go-gate" id="billetPlan">${svg(P.plane, {color: '#fff', sw: 1.6, size: 22})}Aller à ma porte</button></div>
     ${v.retard > 0 ? `<span class="st olive" style="display:inline-block;margin-top:8px">Retardé · départ ${addMin(v.h, v.retard)}</span>` : ''}
+    ${v.marche ? `<div class="temps-p">⏱ Sûreté ${v.surete} min · ${v.paf == null ? 'pas de frontières (Schengen)' : `Frontières ${v.paf} min`} · Marche ${v.marche} min jusqu’à la porte${v.porteHasard ? '<br><span>Porte attribuée au hasard pour la démo</span>' : ''}</div>` : ''}
     ${v.live ? `<div class="live-l">● En direct · ${v.live.statut || 'à l’heure'}${v.live.emb ? ` · ${v.live.emb}` : ''}${v.live.banques ? ` · enregistrement ${v.live.banques}` : ''}</div>` : ''}
     <button class="fswitch" id="billetSuppr" style="display:block">Retirer ce billet</button></div>`;
 }
@@ -1251,17 +1258,61 @@ function analyserBillet(t) {
   if (e) info.emb = `${pad2(+e[1])}:${e[2]}`;
   const d = T.match(/(?:DESTINATION|ARRIVEE|ARRIVAL|VERS|TO)\s*[:\-]\s*([A-Z][A-Z' \-]{2,24})/);
   if (d) info.ville = d[1].trim().split(/\s{2,}|\s(?:VOL|FLIGHT|PORTE|GATE|DEPART)/)[0];
-  info.schengen = SCHENGEN.test(T);
-  info.ok = info.i >= 0 || !!(info.num && (info.ville || info.code || info.porte));
+  // Compagnie (logo ou texte du billet)
+  const cie = Object.keys(COMPAGNIES).find(n => T.includes(n));
+  if (cie) { info.cie = cie.split(' ').map(w => w[0] + w.slice(1).toLowerCase()).join(' '); info.cieCode = COMPAGNIES[cie]; }
+  // Date du vol : « 2 OCTOBRE 2026 » ou « 02/10/2026 »
+  const MOIS_FR = ['JANVIER', 'FEVRIER', 'MARS', 'AVRIL', 'MAI', 'JUIN', 'JUILLET', 'AOUT', 'SEPTEMBRE', 'OCTOBRE', 'NOVEMBRE', 'DECEMBRE'];
+  const dt = T.match(new RegExp(`\\b(\\d{1,2})(?:ER)?\\s+(${MOIS_FR.join('|')})\\s+(20\\d{2})`)), dn = T.match(/\b(\d{2})\/(\d{2})\/(20\d{2})\b/);
+  if (dt) info.date = `${dt[3]}-${pad2(MOIS_FR.indexOf(dt[2]) + 1)}-${pad2(+dt[1])}`;
+  else if (dn) info.date = `${dn[3]}-${dn[2]}-${dn[1]}`;
+  // Heure de départ sans étiquette juste devant (billet en tableau) : première heure du billet, « 17 h 25 » ou « 17:25 »
+  if (!info.h) { const hh = T.match(/\b([01]?\d|2[0-3])\s?[H:]\s?([0-5]\d)\b/); if (hh) info.h = `${pad2(+hh[1])}:${hh[2]}`; }
+  // Destination en tableau : « Londres (LON) » — le code entre parenthèses qui n'est pas Marseille (MRS)
+  if (!info.code || !info.ville) for (const m of T.matchAll(/([A-Z][A-Z'\-]{2,24})\s*\(([A-Z]{3})\)/g)) {
+    if (m[2] === 'MRS') continue;
+    info.code = info.code || m[2]; if (!info.ville) info.ville = m[1]; break;
+  }
+  info.schengen = SCHENGEN.test(T) || (info.code && SCHENGEN.test(` ${info.code} `));
+  info.ok = info.i >= 0 || !!(info.num && (info.ville || info.code || info.porte)) || !!((info.cie || info.num) && (info.ville || info.code) && info.h);
   return info;
 }
+// Compagnies reconnues sur un billet (nom → code IATA)
+const COMPAGNIES = {'BRITISH AIRWAYS': 'BA', 'AIR FRANCE': 'AF', 'EASYJET': 'U2', 'RYANAIR': 'FR', 'VOLOTEA': 'V7', 'TRANSAVIA': 'TO', 'ROYAL AIR MAROC': 'AT',
+  'AIR ALGERIE': 'AH', 'TUNISAIR': 'TU', 'LUFTHANSA': 'LH', 'KLM': 'KL', 'IBERIA': 'IB', 'VUELING': 'VY', 'AIR CORSICA': 'XK', 'TURKISH AIRLINES': 'TK',
+  'EMIRATES': 'EK', 'QATAR AIRWAYS': 'QR', 'SWISS': 'LX', 'TAP AIR PORTUGAL': 'TP', 'CORSAIR': 'SS', 'PEGASUS': 'PC', 'NOUVELAIR': 'BJ', 'AUSTRIAN': 'OS', 'ITA AIRWAYS': 'AZ'};
+// Porte « au hasard » (stable pour un même billet) parmi les portes du terminal de la compagnie
+function porteAuHasard(graine, term) {
+  const ps = portesPlan().filter(x => niveauDuPoi(x.p).term === term);
+  const vus = [...new Map(ps.map(x => [x.nom, x])).values()];
+  return vus[Math.floor(hash01(graine) * vus.length)];
+}
+// Temps fictifs jusqu'à la porte : marche réelle (itinéraire du hall d'enregistrement à la porte, 75 m/min),
+// sûreté et frontières selon l'heure (pointes 6–9 h et 16–19 h) et la porte
+function tempsParcours(v) {
+  const g = v.porte && T3.data && portesPlan().find(x => x.nom === v.porte); if (!g) return;
+  const dep = centreEnregistrement(niveauDuPoi(g.p).term), fl = T3.data.nav.floors, N = T3.data.nav.nodes;
+  const ch = cheminT3(noeudProcheT3(dep.xz[0], dep.xz[1], fl.indexOf(dep.f)), noeudProcheT3(g.p.xz[0], g.p.xz[1], fl.indexOf(g.p.f)));
+  let m = 0; if (ch) for (let i = 1; i < ch.length; i++) m += Math.hypot(N[ch[i]][0] - N[ch[i - 1]][0], N[ch[i]][1] - N[ch[i - 1]][1]);
+  const h = hhmmMin(v.h) / 60, pointe = (h >= 6 && h < 9) || (h >= 16 && h < 19), a = hash01(v.porte + v.h + (v.date || ''));
+  v.marche = Math.max(2, Math.round(m / 75));
+  v.surete = Math.round(5 + (pointe ? 6 : 2) + a * 5);
+  v.paf = v.regime === 'schengen' ? null : Math.round(4 + (pointe ? 4 : 1) + hash01(v.porte) * 5);
+}
 function importerBillet(info) {
-  const gate = info.porte && portesPlan().find(x => x.nom === info.porte), termPorte = gate && niveauDuPoi(gate.p).term;
-  let i = info.i;
+  let gate = info.porte && portesPlan().find(x => x.nom === info.porte);
+  let i = info.i, auHasard = false;
+  // Billet sans porte (vol créé) : porte tirée au hasard dans le terminal (T2 pour Ryanair, sinon T1)
+  if (!gate && i < 0 && (info.cie || info.num)) {
+    gate = porteAuHasard(`${info.cie || info.num}${info.date || ''}${info.h || ''}`, info.term || (info.cieCode === 'FR' ? 'T2' : 'T1'));
+    auHasard = !!gate; if (gate) info.porte = gate.nom;
+  }
+  const termPorte = gate && niveauDuPoi(gate.p).term;
   if (i < 0) { // vol absent de la démo : créé à partir du billet
     const ref = VOLS_DEMO[0], h = info.h || addMin(heureNow(), 120);
-    VOLS_DEMO.push(Object.assign({}, ref, {h, ville: info.ville || info.code || 'DESTINATION', num: info.num || 'VOL', code: info.code || '',
-      term: termPorte || info.term || 'T1', porte: info.porte || null, embarq: info.emb || addMin(h, -30), retard: 0,
+    VOLS_DEMO.push(Object.assign({}, ref, {h, date: info.date || null, ville: info.ville || info.code || 'DESTINATION', code: info.code || '',
+      num: info.num || (info.cieCode ? `${info.cieCode} ${100 + Math.floor(hash01(h + (info.date || '')) * 900)}` : 'VOL'), cie: info.cie || '', numFictif: !info.num,
+      term: termPorte || info.term || 'T1', porte: info.porte || null, porteHasard: auHasard, embarq: info.emb || addMin(h, -30), retard: 0,
       regime: info.schengen ? 'schengen' : 'international', paf: info.schengen ? null : 8}));
     i = VOLS_DEMO.length - 1;
   } else {
@@ -1270,6 +1321,8 @@ function importerBillet(info) {
     if (info.h) { v.h = info.h; v.embarq = info.emb || addMin(info.h, -30); } else if (info.emb) v.embarq = info.emb;
   }
   const v = VOLS_DEMO[i];
+  if (info.date) v.date = info.date;
+  tempsParcours(v);
   club.vol = i; club.billet = {num: info.num || v.num, siege: info.siege, nom: info.nom};
   majBilletLive();
   closeSheet(); renderAll();
@@ -1349,8 +1402,8 @@ function renderClub() {
       <div class="fl-t"><b>${vol().h} · ${vol().ville}</b><span>${vol().term} · ${vol().porte || 'porte à venir'}</span></div>
       ${vol().retard > 0 ? `<span class="st olive" style="display:inline-block;margin-top:8px">Retardé · nouvel horaire ${embarqEff(vol())}</span>` : ''}
       <div class="waits"><div>Sûreté<b>${vol().surete} min</b></div><div>Frontières<b>${vol().paf == null ? '—' : vol().paf + ' min'}</b></div><div>Marche<b>${vol().marche} min</b></div></div>
-      <div class="lnote" style="margin-top:2px;color:var(--navy)">Embarquement dans <b>${embEff(vol())} min</b></div>
-      <div class="libre">Vous avez le temps : <b>${libreEff(vol())} min</b> à profiter du terminal</div>
+      <div class="lnote" style="margin-top:2px;color:var(--navy)">Embarquement dans <b>${fmtDuree(embEff(vol()))}</b></div>
+      <div class="libre">Vous avez le temps : <b>${fmtDuree(libreEff(vol()))}</b> à profiter du terminal</div>
       <button class="go" id="billetPlan2">${svg(P.plane, {color: NAVY, sw: 1.5, size: 20})}Aller à ma porte</button>
       <button class="go" id="offresBtn">${svg(P.bag, {color: NAVY, sw: 1.5, size: 20})}Voir les offres près de la ${(vol().porte || 'porte').replace(/^Porte/, 'porte')}</button>
     </div>
