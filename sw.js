@@ -1,6 +1,6 @@
 // Service worker du prototype Club AMP : l'app s'ouvre même sans réseau une fois installée.
 // Changer VERSION à chaque mise en ligne pour forcer la mise à jour du cache.
-const VERSION = 'club-amp-20261002-0925';
+const VERSION = 'club-amp-20261002-1014';
 const COEUR = ['./', './index_10.html', './manifest.webmanifest', './img/icon-180.png', './img/icon-192.png', './img/icon-512.png', './data/terminaux3d.js'];
 
 self.addEventListener('install', e => {
