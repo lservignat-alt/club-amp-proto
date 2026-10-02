@@ -816,9 +816,10 @@ try { LIVE.suivis = JSON.parse(localStorage.getItem('clubamp.suivis') || '[]'); 
 const sauverSuivis = () => { try { localStorage.setItem('clubamp.suivis', JSON.stringify(LIVE.suivis)); } catch (e) {} };
 function chargerVolsLive(force) {
   if (!force && LIVE.data && Date.now() - LIVE.t < 120000) return Promise.resolve(LIVE.data);
-  // Hors GitHub Pages (ex. Railway) : les vols viennent du site GitHub Pages, mis à jour toutes les 10 min par GitHub Actions
-  const src = location.protocol === 'https:' && !location.hostname.endsWith('github.io') ? URL_PUBLIQUE + 'data/vols.json' : 'data/vols.json';
-  return fetch(src, {cache: 'no-store'}).then(r => r.ok ? r.json() : Promise.reject(r))
+  // Sur Railway, data/vols.json est servi en direct par le serveur (main.py) ; ailleurs, fichier publié.
+  // En secours : la copie publiée sur GitHub Pages (mise à jour par GitHub Actions).
+  const lire = src => fetch(src, {cache: 'no-store'}).then(r => r.ok ? r.json() : Promise.reject(r));
+  return lire('data/vols.json').catch(() => lire(URL_PUBLIQUE + 'data/vols.json'))
     .then(d => { LIVE.data = d; LIVE.t = Date.now(); majBilletLive(); return d; }).catch(() => LIVE.data);
 }
 const volsLive = sens => LIVE.data ? LIVE.data[sens] || [] : [];
@@ -1138,7 +1139,9 @@ function renderCompte() {
 /* ---------- QR code pour ouvrir l'app (présentation au jury) ----------
    Pointe vers l'adresse où l'app est ouverte (Railway, GitHub Pages…) ; en local, vers la version en ligne. */
 const URL_PUBLIQUE = 'https://lservignat-alt.github.io/club-amp-proto/';
-const urlApp = () => location.protocol === 'https:' ? location.origin + location.pathname.replace(/[^/]*$/, '') : URL_PUBLIQUE;
+// Le QR code envoie toujours sur Railway (adresse de la présentation), quelle que soit la version ouverte
+const URL_RAILWAY = 'https://club-amp-proto-production.up.railway.app/';
+const urlApp = () => URL_RAILWAY;
 function openQrApp() {
   const el = document.getElementById('qrApp'), url = urlApp();
   el.hidden = false; document.getElementById('qrAppUrl').textContent = url.replace(/^https:\/\//, '');

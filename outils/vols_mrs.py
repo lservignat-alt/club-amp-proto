@@ -38,7 +38,8 @@ def nettoyer(v, sens, debut, fin):
     return q
 
 
-def main():
+def construire():
+    """Vols autour de maintenant, au format de l'app (utilisé aussi par le serveur Railway, main.py)."""
     maintenant = datetime.now(PARIS)
     debut, fin = maintenant - timedelta(hours=3), maintenant + timedelta(hours=36)
     sortie = {'maj': datetime.now(timezone.utc).isoformat(timespec='seconds'), 'source': 'marseille.aeroport.fr'}
@@ -47,6 +48,11 @@ def main():
         vols = [q for q in (nettoyer(v, sens, debut, fin) for v in (d.get(cle) or {}).get('Vol') or []) if q]
         sortie[sens] = sorted(vols, key=lambda q: (q['date'], q['h']))
         sortie['maj_site'] = d.get('lastUpdate')
+    return sortie
+
+
+def main():
+    sortie = construire()
     if not sortie['dep'] and not sortie['arr']:
         sys.exit('Aucun vol reçu : fichier inchangé')
     os.makedirs(os.path.dirname(SORTIE), exist_ok=True)
