@@ -433,6 +433,7 @@ button.p3-lbl{font-family:inherit;cursor:pointer}
 .planamp.plein .pa-search input{box-shadow:0 2px 10px rgba(25,38,64,.22);border-color:transparent}
 .planamp.plein .pa-cats{margin:0;padding:0}.planamp.plein .pa-cats button{box-shadow:0 2px 6px rgba(25,38,64,.18);border-color:transparent}
 .planamp.plein #t3Foot:not([hidden]){position:absolute;z-index:5;left:10px;right:10px;bottom:calc(10px + var(--safe-bot));border-radius:14px;box-shadow:0 6px 24px rgba(25,38,64,.25);padding:12px 14px}
+.planamp.plein #t3Foot.compact{padding:8px;background:rgba(255,255,255,.92)}.planamp.plein #t3Foot.compact .t3-btns button{height:40px;font-size:13px}
 .p3-stage canvas{display:block;width:100%;height:100%}
 .p3-labels{position:absolute;inset:0;pointer-events:none}
 .p3-lbl{position:absolute;left:0;top:0;white-space:nowrap;will-change:transform}
@@ -2625,6 +2626,13 @@ function guideT3() {
 }
 function piedT3() {
   const f = document.getElementById('t3Foot'), v = vol(), r = T3.route, nomT = PA.term === 'T1' ? 'Terminal 1' : 'Terminal 2'; f.hidden = false;
+  // Plein écran avec un itinéraire : barre compacte, seulement « j'avance de 30 m » (démo) et « Masquer l'itinéraire »
+  const plein = document.getElementById('planAmp').classList.contains('plein');
+  f.classList.toggle('compact', plein && !!r && !T3.lieu);
+  if (plein && r && !T3.lieu) {
+    f.innerHTML = `<div class="t3-btns" style="margin:0">${GEO.etat === 'ok' && GEO.simu ? '<button class="btn-line" id="geoAvance">Démo : j’avance de 30 m</button>' : ''}<button class="btn-line" id="t3RouteOff">Masquer l’itinéraire</button></div>`;
+    return;
+  }
   if (T3.lieu) {
     const p = T3.lieu, nl = niveauDuPoi(p), infos = [fmtHoraires(p.h), p.pres && `près de : ${p.pres.replace(/^Porte d['’]Embarquement/i, 'Porte')}`].filter(Boolean).join(' · ');
     const ajout = porteConnue() && p.cat !== 'gate' && nomLieu(p) !== v.porte;
